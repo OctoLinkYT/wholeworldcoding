@@ -1,10 +1,52 @@
+
+/* Very light scaling for our illustration */
+.illustration {
+  max-width: 100%;
+  max-height: var(--image-max-width);
+  margin-top: var(--image-margin);
+  text-align: center;
+}
+
+/* Instructions */
+.instructions {
+  margin: 1rem auto 0;
+}
+
+
+/* Interactive image */
+.illustration:active {
+  transform: translateY(5px);
+    text-align: center;
+}
+
+
 * {
-  font-family: monospace;
+  font-family:monospace
 }
+        a {
+            text-decoration: none;
+            color: green;
+        }
 
-.centered {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
+        .large-heading {
+            font-size: 3.5em; /* Adjust the font size as needed */
+            /* Add any other styles you want */
+            color: #333;
+            text-align: center;
+            /* Add more styles as needed */
+        }
+        .below-large-heading {
+            font-size: 3em;
+            text-align: center;
 
+        }
+        .center {
+            text-align: center;
+        }
+        .advent {
+            font-size: 1.5em; /* Adjust the font size as needed */
+            /* Add any other styles you want */
+            color: #333;
+            text-align: center;
+            /* Add more styles as needed */
+        }
