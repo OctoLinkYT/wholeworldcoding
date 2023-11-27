@@ -53,11 +53,12 @@
 }
 
 #active {
-  color: lightred;
+  color: black;
 }
 
 #active:hover {
-  color: red;
+  color: black;
+  font-weight: bold;
 }
 
 /* Interactive image */
