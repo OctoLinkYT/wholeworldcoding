@@ -12,6 +12,53 @@
   margin: 1rem auto 0;
 }
 
+#about {
+  color: darkgrey;
+}
+
+#about:hover {
+  color: black;
+}
+
+#projects {
+  color: darkgrey;
+}
+
+#projects:hover {
+  color: black;
+}
+
+#blog {
+  color: darkgrey;
+}
+
+#blog:hover {
+  color: black;
+}
+
+#contact {
+  color: darkgrey;
+}
+
+#contact:hover {
+  color: black;
+}
+
+#home {
+  color: darkgrey;
+}
+
+#home:hover {
+  color: black;
+}
+
+#active {
+  color: lightred;
+}
+
+#active:hover {
+  color: red;
+}
 
 /* Interactive image */
 .illustration:active {
