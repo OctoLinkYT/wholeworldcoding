@@ -1,0 +1,9 @@
+* {
+  font-family: monospace;
+}
+
+.centered {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
