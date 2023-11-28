@@ -1,1 +1,1 @@
-window.alert("Hey there!");
+
