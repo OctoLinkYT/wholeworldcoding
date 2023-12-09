@@ -1,28 +1,36 @@
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let interval = null;
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let interval = null;
 
-  document.querySelector(".large-heading").onmouseover = event => {
-    let iteration = 0;
-    const targetElement = event.target;
+document.querySelector(".large-heading").onmouseover = event => {
+  let iteration = 0;
+  const targetElement = event.target;
 
-    clearInterval(interval);
+  // Change text color to red
+  targetElement.style.color = "red";
 
-    interval = setInterval(() => {
-      targetElement.innerText = targetElement.innerText
-        .split("")
-        .map((letter, index) => {
-          if(index < iteration) {
-            return targetElement.dataset.value[index];
-          }
+  clearInterval(interval);
 
-          return letters[Math.floor(Math.random() * 26)];
-        })
-        .join("");
+  interval = setInterval(() => {
+    targetElement.innerText = targetElement.innerText
+      .split("")
+      .map((letter, index) => {
+        if(index < iteration) {
+          return targetElement.dataset.value[index];
+        }
 
-      if(iteration >= targetElement.dataset.value.length){
-        clearInterval(interval);
-      }
+        return letters[Math.floor(Math.random() * 26)];
+      })
+      .join("");
 
-      iteration += 1 / 3;
-    }, 15);
-  }
+    if(iteration >= targetElement.dataset.value.length){
+      clearInterval(interval);
+    }
+
+    iteration += 1 / 3;
+  }, 15);
+}
+
+// Reset text color to original on mouseout
+document.querySelector(".large-heading").onmouseout = event => {
+  event.target.style.color = "";
+};
