@@ -1,0 +1,4 @@
+        <article class="special-post" onmouseover="startChangingText()" onmouseout="stopChangingText()">
+            <h2><a href="url">title</a></h2>
+            <p>preview...</p>
+        </article>
