@@ -6,11 +6,11 @@
     <title>Discord Webhook Tutorial</title>
   </head>
   <body>
-    <button onclick="sendMessage()">Send</button>
+    <button onclick="sendMessage('Hello, how are you? I'm a bot coming soon completing a test')">Send</button>
   </body>
 
   <script>
-    function sendMessage() {
+    function sendMessage(message) {
       const request = new XMLHttpRequest();
       request.open("POST", "https://discord.com/api/webhooks/1206398430793048134/UuEBB3XdKNoNzbCP3eEAi2eNV-Uel43AewTlUG0O0HK8rvhf_cL7VTeQ_GhBlNfOkUep");
 
@@ -19,7 +19,7 @@
       const params = {
         username: "The People's Computer",
         avatar_url: "",
-        content: "This is a test for an upcoming project. Stay tuned!"
+        content: message
       }
 
       request.send(JSON.stringify(params));
