@@ -6,7 +6,7 @@
     <title>Discord Webhook Tutorial</title>
   </head>
   <body>
-    <button onclick="sendMessage('Hello, how are you? I'm a bot coming soon completing a test')">Send</button>
+    <button onclick="sendMessage()">Send</button>
   </body>
 
   <script>
@@ -19,7 +19,7 @@
       const params = {
         username: "The People's Computer",
         avatar_url: "",
-        content: message
+        content: "Hello world!"
       }
 
       request.send(JSON.stringify(params));
