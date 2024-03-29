@@ -35,16 +35,6 @@ main {
     overflow: hidden;
     z-index: -1;
 }
-body{
-    background-image: url('https://i.stack.imgur.com/kx8MT.gif');
-    background-size: cover;
-    
-    
-    
-    height: 100vh;
-    padding:0;
-    margin:0;
-}
 
 #static {
     position: absolute;
@@ -54,14 +44,6 @@ body{
     height: 100%;
 }
 
-@keyframes static-animation {
-    0% {
-        transform: translateY(-50%);
-    }
-    100% {
-        transform: translateY(50%);
-    }
-}
 
 #phrase-container {
     text-align: center;
