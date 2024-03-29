@@ -1,7 +1,7 @@
- @font-face { 
-    font-family: "VCR OSD Mono"; 
+@font-face {
+    font-family: "VCR OSD Mono";
     src: url("https://static.tumblr.com/nlxfn1e/7Pwqv8mt8/vcr_osd_mono_1.001.ttf") format("truetype");
-  } 
+}
 
 body {
     margin: 0;
@@ -9,16 +9,19 @@ body {
     font-family: "VCR OSD Mono";
     color: #ffffff;
     background-color: #000000;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
 }
 
 .container {
     max-width: 800px;
-    margin: 0 auto;
     padding: 20px;
+    text-align: center; 
 }
 
 header {
-    text-align: center;
     margin-bottom: 20px;
 }
 
@@ -44,13 +47,10 @@ main {
     height: 100%;
 }
 
-
 #phrase-container {
-    text-align: center;
     margin-top: 50px;
 }
 
 footer {
-    text-align: center;
     margin-top: 20px;
 }
