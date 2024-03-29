@@ -1,60 +1,114 @@
-<style>
-@font-face {
-    font-family: "VCR OSD Mono";
-    src: url("https://static.tumblr.com/nlxfn1e/7Pwqv8mt8/vcr_osd_mono_1.001.ttf") format("truetype");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle 01 - Initiation</title>
+    <style>
+        @font-face {
+            font-family: "VCR OSD Mono";
+            src: url("https://static.tumblr.com/nlxfn1e/7Pwqv8mt8/vcr_osd_mono_1.001.ttf") format("truetype");
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "VCR OSD Mono";
+            color: #ffffff;
+            background-color: #000000;
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            text-align: center; 
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        #phrase-container {
+            margin-top: 50px;
+        }
+
+        input {
+            font-family: "VCR OSD Mono";
+            color: #ffffff;
+            background-color: #000000;
+            border: none;
+            text-align: center;
+            font-size: 24px;
+            padding: 10px;
+            width: 80%;
+            max-width: 400px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PUZZLE 01 - INITIATION</h1>
+        <p id="bruh">Find the five-letter word. Look on the main page for hints.</p>
+        <input type="text" id="textInput" name="textInput" placeholder="" onkeypress="return enterKeyPressed(event)" required>
+ 
+    </div>
+
+    <script>
+        
+document.getElementById("textInput").focus();
+        document.getElementById("textInput").addEventListener("input", function() {
+            let inputText = this.value.toUpperCase();
+            let formattedText = "";
+            for (let i = 0; i < inputText.length; i++) {
+                if (inputText[i].match(/[A-Z_]/)) {
+                    formattedText += inputText[i];
+                }
+            }
+            this.value = formattedText.substr(0, 5);
+        });
+        
+   function enterKeyPressed(event) {
+      if (event.keyCode == 13) {
+         if (document.getElementById('textInput').value == "KATEY") {
+             var textBox = document.getElementById("textInput");
+             stop();
+             textBox.style.color = "lightgreen";
+             textBox.value = "SUCCESS";
+             document.getElementById("textInput").blur();
+             setTimeout(() => {
+                textBox.value = "";
+                 textBox.style.color = "lightblue";
+                document.getElementById('bruh').innerHTML = "<a href='https://wholeworldcoding.com/spark/viewer/two' style='color: lightblue;'> https://wholeworldcoding.com/spark/viewer/two </p>";
+             }, 1000);
+         }
+         return true;
+      } else {
+         document.getElementById("textInput").focus();
+      }
+   }
+        
+let stopLoop = false;
+
+function startLoop() {
+    stopLoop = false;
+    infiniteLoop();
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "VCR OSD Mono";
-    color: #ffffff;
-    background-color: #000000;
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh; 
+function stop() {
+    stopLoop = true;
 }
 
-.container {
-    max-width: 800px;
-    padding: 20px;
-    text-align: center; 
+function infiniteLoop() {
+    if (stopLoop) {
+        console.log("Loop stopped.");
+        return;
+    }
+    document.getElementById("textInput").focus();
+    setTimeout(infiniteLoop, 5);
 }
 
-header {
-    margin-bottom: 20px;
-}
-
-main {
-    position: relative;
-}
-
-#static-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -1;
-}
-
-#static {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-#phrase-container {
-    margin-top: 50px;
-}
-
-footer {
-    margin-top: 20px;
-}
-</style>
-
-<h1>I'M NOT READY TO LET YOU IN YET. GO BACK.</h1>
+startLoop();
+</script>
+</body>
+</html>
