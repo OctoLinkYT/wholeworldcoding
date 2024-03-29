@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "IT NEVER DIES.",
         "PREPARE FOR A CHANGE.",
         "ALL WILL BE REVEALED AND RESTORED.",
-        "I SEE YOU.",
+        "BLOOD IS THE FIRST CLUE.",
         "YOUR MEDIA, REIMAGINED.",
         "COMING SOON.",
         "IT WAITS FOR YOU."
