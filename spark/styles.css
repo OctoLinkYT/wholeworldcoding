@@ -15,6 +15,16 @@ body {
     height: 100vh; 
 }
 
+a {
+    color: #FF6B6B; /* Light red color */
+    text-decoration: none; /* Remove underline */
+}
+        
+a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+
 .container {
     max-width: 800px;
     padding: 20px;
