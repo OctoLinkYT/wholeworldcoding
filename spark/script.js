@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
         "YOU SHOULDN'T BE HERE.",
         "IT NEVER DIES.",
         "PREPARE FOR A CHANGE.",
-        "ALL WILL BE REVEALED AND RESTORED.",
+        "HE WAS 52 YEARS OLD.",
         "BLOOD IS THE FIRST CLUE.",
         "YOUR MEDIA, REIMAGINED.",
         "COMING SOON.",
