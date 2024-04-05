@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholeworldcoding Blog</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #111;
+            color: #0f0;
+            margin: 0;
+            padding: 0;
+            transition: color 0.3s; /* Smooth transition effect on text color change */
+        }
+        .hrstyle {
+          background-color: #0f0;
+        }
+
+        header {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: padding 0.3s; /* Smooth transition effect on padding change */
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+            transition: font-size 0.3s; /* Smooth transition effect on font size change */
+        }
+
+        h1 .small-w {
+            font-size: 1em;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 20px;
+        }
+
+        h1 .blog-text-scroll {
+            font-size: 1em;
+            position: absolute;
+            top: 0;
+            right: 20px;
+            padding: 20px;
+        }
+
+        h1:hover .small-w {
+            font-size: 1.5em;
+        }
+
+        h1:hover {
+            font-size: 1.5em;
+            margin-right: 0;
+        }
+
+        main {
+            padding-top: 80px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            transition: padding 0.3s; /* Smooth transition effect on padding change */
+        }
+
+        article {
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+
+        .special-post {
+            cursor: pointer;
+        }
+
+        .special-post:hover * {
+            color: blue !important; /* Change text color for all elements inside .special-post */
+            transition: color 1s; /* Smooth transition effect on text color change for 1 second */
+        }
+
+        h2 {
+            color: #0f0;
+            transition: color 0.3s; /* Smooth transition effect on color change */
+        }
+
+        a {
+            color: #0f0;
+            text-decoration: none;
+            transition: color 0.3s; /* Smooth transition effect on color change */
+        }
+
+        a:hover {
+            color: #f00;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        footer {
+            background-color: #000;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+
+    <main>
+        <h1>EARTHQUAKES IN NEW JERSEY</h1>
+        <h6>[wholeworldcoding]</h6>
+        <hr id="hrstyle"></hr>
+        <p>An earthquake just hit New Jersey at 10:24 AM on April 5th. 2024. It was a magnitude of 4.8, which is relatively high for the state. Be careful!</p>
+    </main>
+
+    <footer>
+        <p>&copy; Wholeworldcoding 2024: CODE THE WORLD</p>
+    </footer>
+
+    <script>
+
+    </script>
+</body>
+</html>
