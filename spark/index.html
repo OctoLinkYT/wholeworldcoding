@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Broken+Fax&family=Rubik+Bubbles&family=Rubik+Burned&family=Rubik+Distressed&family=Rubik+Doodle+Triangles&family=Rubik+Gemstones&family=Rubik+Glitch&family=Rubik+Maps&family=Rubik+Marker+Hatch&family=Rubik+Maze&family=Rubik+Puddles&family=Rubik+Scribble&family=Rubik+Spray+Paint&family=Rubik+Vinyl&display=swap" rel="stylesheet">
+  <style>
+    * {
+      color: black;
+      font-family: "Rubik Spray Paint", "Rubik Bubbles", "Rubik Scribble", system-ui;
+      font-weight: 400;
+      font-style: normal;
+      margin: 0;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column; /* Stack elements vertically */
+      justify-content: center;
+      align-items: center;
+      height: 95vh;
+      background-color: yellow;
+    }
+
+    footer {
+      display: flex;
+      flex-direction: column; /* Stack elements vertically */
+      justify-content: center;
+      align-items: center;
+      height: 50vh;
+      padding-left: 30px; /* Adjust side padding */
+      padding-right: 30px; /* Adjust side padding */
+    }
+
+    h1 {
+      font-size: 45px;
+    }
+
+    p {
+      font-size: 15px;
+      margin-top: 10px;
+    }
+
+    style {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1 id="headingmain">Spark.</h1>
+    <p> Media, reimagined.</p>
+    <br>
+    <br>
+  </div>
+<footer>
+<p>Spark is a work in progress project to release various forms of media (free of charge) to the public. This site will show updates to the project, and opportunities for those who visit to get involved in the future of the site. This could include quizes, polls, and more!</p>    
+</footer>
+<a style="color: #1F51FF; text-decoration: none;" href="www.wholeworldcoding.com">Home</a>
+<script>
+    const fontFamilies = [
+        "Rubik Vinyl",
+        "Rubik Spray Paint",
+        "Rubik Bubbles",
+        "Rubik Scribble",
+        "Rubik Gemstones",
+        "Rubik Marker Hatch",
+        "Rubik Distressed",
+        "Rubik Glitch",
+        "Rubik Distressed",
+        "Rubik Doodle Triangles",
+        "Rubik Broken Fax",
+        "Rubik Burned",
+        "Rubik Puddles",
+        "Rubik Maze"
+    ];
+
+    let currentIndex = 0;
+
+    function changeFont() {
+        document.getElementById("headingmain").style.fontFamily = fontFamilies[currentIndex];
+        currentIndex = (currentIndex + 1) % fontFamilies.length;
+        setTimeout(changeFont, 500); // Change font every 1000 milliseconds (1 second)
+    }
+
+    // Start the loop
+    changeFont();
+</script>
+</body>
+</html>
