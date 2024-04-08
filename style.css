@@ -44,7 +44,7 @@
   text-align: center;
 }
 
-
+/* Base styles */
 * {
   font-family: monospace;
 }
@@ -73,4 +73,28 @@ a {
   font-size: 1.5em; /* Adjust the font size as needed */
   color: #333;
   text-align: center;
+}
+
+/* Media Query for Mobile Devices */
+@media (max-width: 768px) {
+  .large-heading {
+    font-size: 2em; /* Smaller font size for mobile */
+  }
+  
+  .below-large-heading {
+    font-size: 1.75em; /* Adjust for mobile readability */
+  }
+  
+  .advent {
+    font-size: 1.25em; /* Smaller text for mobile screens */
+  }
+  
+  /* Adjust navigation links for better tap targets on mobile */
+  #about,
+  #projects,
+  #blog,
+  #merch,
+  #home {
+    font-size: 1em; /* Larger font size for easier interaction on mobile */
+  }
 }
