@@ -1,4 +1,3 @@
-
 /* Very light scaling for our illustration */
 .illustration {
   max-width: 100%;
@@ -12,42 +11,19 @@
   margin: 1rem auto 0;
 }
 
-#about {
-  color: darkgrey;
-}
-
-#about:hover {
-  color: black;
-}
-
-#projects {
-  color: darkgrey;
-}
-
-#projects:hover {
-  color: black;
-}
-
-#blog {
-  color: darkgrey;
-}
-
-#blog:hover {
-  color: black;
-}
-
-#contact {
-  color: darkgrey;
-}
-
-#contact:hover {
-  color: black;
-}
-
+/* Navigation Links */
+#about,
+#projects,
+#blog,
+#contact,
 #home {
   color: darkgrey;
 }
 
+#about:hover,
+#projects:hover,
+#blog:hover,
+#contact:hover,
 #home:hover {
   color: black;
 }
@@ -65,37 +41,36 @@
 /* Interactive image */
 .illustration:active {
   transform: translateY(5px);
-    text-align: center;
+  text-align: center;
 }
 
 
 * {
-  font-family:monospace
+  font-family: monospace;
 }
-        a {
-            text-decoration: none;
-            color: black;
-        }
 
-        .large-heading {
-            font-size: 3.5em; /* Adjust the font size as needed */
-            /* Add any other styles you want */
-            color: #333;
-            text-align: center;
-            /* Add more styles as needed */
-        }
-        .below-large-heading {
-            font-size: 3em;
-            text-align: center;
+a {
+  text-decoration: none;
+  color: black;
+}
 
-        }
-        .center {
-            text-align: center;
-        }
-        .advent {
-            font-size: 1.5em; /* Adjust the font size as needed */
-            /* Add any other styles you want */
-            color: #333;
-            text-align: center;
-            /* Add more styles as needed */
-        }
+.large-heading {
+  font-size: 3.5em; /* Adjust the font size as needed */
+  color: #333;
+  text-align: center;
+}
+
+.below-large-heading {
+  font-size: 3em;
+  text-align: center;
+}
+
+.center {
+  text-align: center;
+}
+
+.advent {
+  font-size: 1.5em; /* Adjust the font size as needed */
+  color: #333;
+  text-align: center;
+}
