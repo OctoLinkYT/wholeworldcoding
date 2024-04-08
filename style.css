@@ -15,7 +15,7 @@
 #about,
 #projects,
 #blog,
-#contact,
+#merch,
 #home {
   color: darkgrey;
 }
@@ -23,7 +23,7 @@
 #about:hover,
 #projects:hover,
 #blog:hover,
-#contact:hover,
+#merch:hover,
 #home:hover {
   color: black;
 }
