@@ -1,10 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[w] - DROP 01</title>
 <style>
-  * {
-   font-family: monospace;
+  body {
+    background-color: black;
+    color: white; /* White text */
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column; /* Align items vertically */
+  }
+
+  h1 {
+    text-align: center;
+    color: white; /* White text */
+    margin-top: 0;
+    animation: fadein 1s forwards; /* Apply fade-in animation */
+    font-size: 40px; /* Adjust font size */
+  }
+
+h2 {
+  text-align: center;
+  font-size: 30px;
+  font-weight: normal; /* Set font weight to normal */
+  margin-bottom: 0; /* Remove default bottom margin */
+}
+
+#countdown {
+  font-size: 30px; /* Match font size with the h2 tag */
+  font-weight: normal; /* Set font weight to normal */
+  animation: fadein 1s forwards; /* Apply fade-in animation */
+  text-align: center; /* Center the countdown text */
+  margin-top: 10px; /* Adjust margin-top to desired spacing */
+}
+
+  p {
+    text-align: center;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+
+  #countdownText {
+    display: block;
+  }
+
+  /* Blinking effect for countdown */
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Dialog box styles */
+dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    border: none; /* Ensure no border */
+    outline: none;
+    animation: fadein 1s forwards; /* Apply fade-in animation */
+}
+
+dialog:focus {
+    outline: none;
+}
+
+
+  dialog h2 {
+    margin-top: 0;
+  }
+
+  @keyframes fadein {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeout {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
 </style>
-<p>If you are not redirected to the merch site within 5 seconds, <a href="https://streamlabs.com/adventureproductions/merch">click here</a>.</p>
-
 <script>
-location.href = "https://streamlabs.com/adventureproductions/merch";
+  // Set the date we're counting down to
+  var countDownDate = new Date("April 25, 2024 18:00:00").getTime();
+
+  // Update the countdown and flashing effect every second
+  var x = setInterval(function() {
+
+    // Get the current date and time
+    var now = new Date().getTime();
+
+    // Calculate the time remaining
+    var distance = countDownDate - now;
+
+    // Calculate days, hours, minutes, and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display the countdown
+    var countdownElement = document.getElementById("countdownText");
+    countdownElement.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+    // Calculate the time left in seconds
+    var totalSeconds = Math.floor(distance / 1000);
+
+    // Adjust the blinking animation based on the remaining seconds
+    var blinkSpeed = 1; // Default blink speed
+    if (totalSeconds < 10) {
+      blinkSpeed = 0.5; // Blink twice as fast if less than 10 seconds remaining
+    } else if (totalSeconds < 30) {
+      blinkSpeed = 0.75; // Blink faster if less than 30 seconds remaining
+    }
+    countdownElement.style.animationDuration = blinkSpeed + "s";
+
+    // If the countdown is over, fade out "wholeworldcoding merch" after 3 seconds
+    if (distance < 0) {
+      clearInterval(x);
+      setTimeout(function() {
+        fadeOutElement(document.getElementById("wholeworldcodingMerch"));
+        setTimeout(function() {
+          window.location.href = "https://streamlabs.com/adventureproductions/merch";
+        }, 1000); // Delay URL change for better transition
+      }, 3000);
+    }
+  }, 1000);
+
+  // Function to fade out an element
+  function fadeOutElement(element) {
+    element.style.animation = "fadeout 1s forwards";
+  }
+
+  // Function to toggle the info dialog
+  function toggleInfoDialog() {
+    var dialog = document.getElementById("infoDialog");
+    if(dialog.hasAttribute("open")){
+        dialog.close();
+    } else {
+        dialog.showModal();
+        document.getElementById("logo").style.display = "block";
+    }
+  }
+
+document.addEventListener("keydown", function(event) {
+  // Check if the "I" key is pressed
+  if (event.key === "i") {
+    toggleInfoDialog();
+  }
+});
+
 </script>
+</head>
+<body>
+
+<h2 onclick="toggleInfoDialog()" style="cursor: pointer;">Press [i] for more information...</h2>
+
+<div id="countdown">
+  <h2 style="font-size: 80px;" id="countdownText"></h2>
+</div>
+
+<dialog id="infoDialog">
+<h1 id="wholeworldcodingMerch">[wholeworldcoding] <span style="color: red;">MERCH</span></h1>
+  <p>Drop 01: THE BASICS <br><br><br> Our motto is "MORE THAN JUST MERCH" beause it isn't just merch. It's stylish clothing that's a work of art. Wholeworldcoding merch works in DROPS, where designs are released, sold, and then removed permanently when the drop is over. New designs replace the originals, and another drop begins.</p>
+</dialog>
+
+</body>
+</html>
