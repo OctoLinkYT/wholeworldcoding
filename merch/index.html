@@ -18,54 +18,32 @@
     flex-direction: column; /* Align items vertically */
   }
 
-  h1 {
+  h1, h2 {
     text-align: center;
     color: white; /* White text */
     margin-top: 0;
-    animation: fadein 1s forwards; /* Apply fade-in animation */
-    font-size: 40px; /* Adjust font size */
   }
 
-h2 {
-  text-align: center;
-  font-size: 30px;
-  font-weight: normal; /* Set font weight to normal */
-  margin-bottom: 0; /* Remove default bottom margin */
-}
+  h1 {
+    font-size: 24px; /* Adjust font size */
+  }
 
-#countdown {
-  font-size: 30px; /* Match font size with the h2 tag */
-  font-weight: normal; /* Set font weight to normal */
-  animation: fadein 1s forwards; /* Apply fade-in animation */
-  text-align: center; /* Center the countdown text */
-  margin-top: 10px; /* Adjust margin-top to desired spacing */
-}
+  h2 {
+    font-size: 20px; /* Adjust font size */
+    cursor: pointer; /* Add pointer cursor */
+  }
+
+  #countdown {
+    font-size: 20px; /* Adjust font size */
+    margin-top: 10px; /* Adjust margin-top to desired spacing */
+  }
 
   p {
     text-align: center;
-    font-size: 20px;
+    font-size: 16px; /* Adjust font size */
     line-height: 1.5;
   }
 
-
-  #countdownText {
-    display: block;
-  }
-
-  /* Blinking effect for countdown */
-  @keyframes blink {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  /* Dialog box styles */
 dialog {
     position: fixed;
     top: 0;
@@ -86,26 +64,21 @@ dialog:focus {
 }
 
 
-  dialog h2 {
-    margin-top: 0;
-  }
+  /* Media query for smaller screens */
+  @media screen and (max-width: 600px) {
+    h1 {
+      font-size: 20px; /* Adjust font size */
+    }
+    h2 {
+      font-size: 16px; /* Adjust font size */
+    }
+    #countdown {
+      font-size: 16px; /* Adjust font size */
+    }
+    p {
+      font-size: 14px; /* Adjust font size */
+    }
 
-  @keyframes fadein {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes fadeout {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
   }
 </style>
 <script>
@@ -182,15 +155,15 @@ document.addEventListener("keydown", function(event) {
 </head>
 <body>
 
-<h2 onclick="toggleInfoDialog()" style="cursor: pointer;">Press [i] for more information...</h2>
+<h2 onclick="toggleInfoDialog()">Press [i] for more information...</h2>
 
 <div id="countdown">
-  <h2 style="font-size: 80px;" id="countdownText"></h2>
+  <h2 id="countdownText" style="font-size: 40px;"></h2>
 </div>
 
 <dialog id="infoDialog">
-<h1 id="wholeworldcodingMerch">[wholeworldcoding] <span style="color: red;">MERCH</span></h1>
-  <p>Drop 01: THE BASICS <br><br><br> Our products are more than just merch. This site works in DROPS, where designs are released, sold, and then removed permanently when the drop is over. New designs replace the originals, and another drop begins. See you April 25th, at 6:00 PM EST.</p>
+  <h1 id="wholeworldcodingMerch">[wholeworldcoding] <span style="color: red;">MERCH</span></h1>
+  <p>Drop 01: THE BASICS <br><br><br> Our products are more than just merch. This site works in DROPS, where designs are released, sold, and then removed permanently when the drop is over. New designs replace the originals, and another drop begins. Drop 01 begins on April 25th, at 6:00 PM EST.</p>
 </dialog>
 
 </body>
