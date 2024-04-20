@@ -18,6 +18,14 @@
     flex-direction: column; /* Align items vertically */
   }
 
+  footer {
+    padding: 20px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+
   h1, h2 {
     text-align: center;
     color: white; /* White text */
@@ -154,16 +162,16 @@ document.addEventListener("keydown", function(event) {
 </script>
 </head>
 <body>
+<p onclick="toggleInfoDialog()">Press [i] for more information...</p>
+<h1>[wholeworldcoding] <span style="color: red;">MERCH</span><br></h1><br>
 
-<h2 onclick="toggleInfoDialog()">Press [i] for more information...</h2>
-
-<div id="countdown">
+<footer><div id="countdown"><br><br><br><br>
   <h2 id="countdownText" style="font-size: 40px;"></h2>
-</div>
+</div></footer>
 
 <dialog id="infoDialog">
   <h1 id="wholeworldcodingMerch">[wholeworldcoding] <span style="color: red;">MERCH</span></h1>
-  <p>Drop 01: THE BASICS <br><br><br> Our products are more than just merch. This site works in DROPS, where designs are released, sold, and then removed permanently when the drop is over. New designs replace the originals, and another drop begins. Drop 01 begins on April 25th, at 6:00 PM EST.</p>
+  <p>Drop 01: THE BASICS <br><br><br> Our products are more than just merch. This site works in DROPS, where designs are released, sold, and then removed permanently when the drop is over. New designs replace the originals, and another drop begins. See you April 25th, at 6:00 PM EST.</p>
 </dialog>
 
 </body>
