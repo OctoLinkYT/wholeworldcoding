@@ -118,7 +118,7 @@ button:hover {
             // Generate the URL based on the array
             const url = generateURL(questionsAndAnswers);
             // Display the generated URL
-            document.getElementById("generatedUrl").innerHTML = '<a href="' + url + '"> Click here to access your quizzy!</a>';
+            document.getElementById("generatedUrl").innerHTML = '<a href="' + url + '">'+ url +'</a>';
             // Remove 'generator.html' from the URL
             window.history.replaceState({}, document.title, window.location.pathname);
         });
