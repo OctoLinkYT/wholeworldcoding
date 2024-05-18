@@ -105,6 +105,10 @@
 </button>
 
     <script>
+  function removeUrlParams() {
+    const urlWithoutParams = window.location.pathname;
+    window.history.replaceState({}, document.title, urlWithoutParams);
+}
 // Function to toggle between dark mode and light mode
 function toggleMode() {
     const body = document.body;
@@ -124,6 +128,7 @@ function toggleMode() {
 
 // Ensure correct symbol is shown on load
 window.onload = function() {
+    removeUrlParams()
     const body = document.body;
     const modeIcon = document.getElementById("mode-icon");
     if (body.classList.contains("dark-mode")) {
