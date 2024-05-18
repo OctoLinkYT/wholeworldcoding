@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Questions and Answers</title>
+  <style>
+  /* Style for body */
+body {
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+/* Style for heading */
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+/* Style for form container */
+form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for form labels */
+label {
+    font-weight: bold;
+}
+
+/* Style for form inputs */
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Style for buttons */
+button {
+    width: 100%;
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Style for generated URL */
+#generatedUrl {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+  </style>
+</head>
+<body>
+    <h1>QUIZZY</h1>
+    <form id="questionForm">
+        <div id="questionInputs">
+            <div class="questionInput">
+                <label for="question1">Question:</label><br>
+                <input type="text" id="question1" name="question" required><br>
+                <label for="answer1">Answer:</label><br>
+                <input type="text" id="answer1" name="answer" required><br><br>
+            </div>
+        </div>
+        <button type="button" id="addQuestionButton">Add Question</button><br><br>
+        <button type="submit">Generate URL</button>
+    </form>
+
+    <p id="generatedUrl"></p>
+
+    <script>
+        // Function to handle adding a new question input field
+        document.getElementById("addQuestionButton").addEventListener("click", function() {
+            const questionInputs = document.getElementById('questionInputs');
+            const newQuestionInput = document.createElement('div');
+            const index = questionInputs.children.length + 1;
+            newQuestionInput.innerHTML = `
+                <div class="questionInput">
+                    <label for="question${index}">Question:</label><br>
+                    <input type="text" id="question${index}" name="question" required><br>
+                    <label for="answer${index}">Answer:</label><br>
+                    <input type="text" id="answer${index}" name="answer" required><br><br>
+                </div>
+            `;
+            questionInputs.appendChild(newQuestionInput);
+        });
+
+        // Function to handle form submission
+        document.getElementById("questionForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const questionsAndAnswers = [];
+            const questionInputs = document.querySelectorAll('.questionInput');
+            questionInputs.forEach((questionInput, index) => {
+                const question = questionInput.querySelector(`#question${index + 1}`).value;
+                const answer = questionInput.querySelector(`#answer${index + 1}`).value;
+                questionsAndAnswers.push({question, answer});
+            });
+            // Generate the URL based on the array
+            const url = generateURL(questionsAndAnswers);
+            // Display the generated URL
+            document.getElementById("generatedUrl").innerHTML = '<a href="' + url + '"> Click here to access your quizzy!</a>';
+            // Remove 'generator.html' from the URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        });
+
+// Function to generate URL based on questions and answers
+function generateURL(questionsAndAnswers) {
+    let url = window.location.href.split('generator.html')[0]; // Splitting URL at "generator.html"
+    url += '?';
+    questionsAndAnswers.forEach((item, index) => {
+        url += `verb${index + 1}=${encodeURIComponent(item.answer)}&question${index + 1}=${encodeURIComponent(item.question)}`;
+        if (index !== questionsAndAnswers.length - 1) {
+            url += '&';
+        }
+    });
+    return url;
+}
+
+    </script>
+</body>
+</html>
