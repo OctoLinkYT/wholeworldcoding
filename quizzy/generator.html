@@ -4,72 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Questions and Answers</title>
-  <style>
-  /* Style for body */
-body {
-    font-family: 'Courier New', Courier, monospace;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
+    <style>
+        /* Style for body */
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
 
-/* Style for heading */
-h1 {
-    text-align: center;
-    color: #333;
-}
+        /* Style for heading */
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
-/* Style for form container */
-form {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+        /* Style for form container */
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-/* Style for form labels */
-label {
-    font-weight: bold;
-}
+        /* Style for form labels */
+        label {
+            font-weight: bold;
+        }
 
-/* Style for form inputs */
-input[type="text"] {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-family: 'Courier New', Courier, monospace;
-}
+        /* Style for form inputs */
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
 
-/* Style for buttons */
-button {
-    width: 100%;
-    padding: 10px 20px;
-    margin-top: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Courier New', Courier, monospace;
-}
+        /* Style for buttons */
+        button {
+            width: 100%;
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+        }
 
-button:hover {
-    background-color: #45a049;
-}
+        button:hover {
+            background-color: #45a049;
+        }
 
-/* Style for generated URL */
-#generatedUrl {
-    text-align: center;
-    margin-top: 20px;
-    font-family: 'Courier New', Courier, monospace;
-}
+        /* Style for URL display section */
+        #urlSection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
 
-  </style>
+        #shortenedUrl {
+            width: 60%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            margin-right: 10px;
+        }
+
+        #urlSection button {
+            width: auto;
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #urlSection button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>QUIZZY</h1>
@@ -86,7 +111,11 @@ button:hover {
         <button type="submit">Generate URL</button>
     </form>
 
-    <p id="generatedUrl"></p>
+    <div id="urlSection" style="display: none;">
+        <input type="text" id="shortenedUrl" readonly>
+        <button id="viewSiteButton">View Site</button>
+        <button id="copyButton">Copy to Clipboard</button>
+    </div>
 
     <script>
         // Function to handle adding a new question input field
@@ -117,25 +146,50 @@ button:hover {
             });
             // Generate the URL based on the array
             const url = generateURL(questionsAndAnswers);
-            // Display the generated URL
-            document.getElementById("generatedUrl").innerHTML = '<a href="' + url + '">'+ url +'</a>';
-            // Remove 'generator.html' from the URL
-            window.history.replaceState({}, document.title, window.location.pathname);
+            // Get the shortened URL using TinyURL API
+            shortenURL(url);
         });
 
-// Function to generate URL based on questions and answers
-function generateURL(questionsAndAnswers) {
-    let url = window.location.href.split('generator.html')[0]; // Splitting URL at "generator.html"
-    url += '?';
-    questionsAndAnswers.forEach((item, index) => {
-        url += `verb${index + 1}=${encodeURIComponent(item.answer)}&question${index + 1}=${encodeURIComponent(item.question)}`;
-        if (index !== questionsAndAnswers.length - 1) {
-            url += '&';
+        // Function to generate URL based on questions and answers
+        function generateURL(questionsAndAnswers) {
+            let url = window.location.href.split('generator.html')[0]; // Splitting URL at "generator.html"
+            url += '?';
+            questionsAndAnswers.forEach((item, index) => {
+                url += `verb${index + 1}=${encodeURIComponent(item.answer)}&question${index + 1}=${encodeURIComponent(item.question)}`;
+                if (index !== questionsAndAnswers.length - 1) {
+                    url += '&';
+                }
+            });
+            return url;
         }
-    });
-    return url;
-}
 
+        // Function to get shortened URL using TinyURL API
+        function shortenURL(url) {
+            fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`)
+                .then(response => response.text())
+                .then(shortenedUrl => {
+                    const shortenedUrlInput = document.getElementById("shortenedUrl");
+                    shortenedUrlInput.value = shortenedUrl;
+                    document.getElementById("urlSection").style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Function to copy the URL to clipboard
+        document.getElementById("copyButton").addEventListener("click", function() {
+            const shortenedUrlInput = document.getElementById("shortenedUrl");
+            shortenedUrlInput.select();
+            document.execCommand("copy");
+            alert("URL copied to clipboard!");
+        });
+
+        // Function to view the site
+        document.getElementById("viewSiteButton").addEventListener("click", function() {
+            const shortenedUrl = document.getElementById("shortenedUrl").value;
+            window.open(shortenedUrl, '_blank');
+        });
     </script>
 </body>
 </html>
