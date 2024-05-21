@@ -177,12 +177,11 @@ window.onload = function() {
             }
         }
 
-        // Listen for input in the text input field
-        document.getElementById("textInput").addEventListener("input", function() {
+      document.getElementById("textInput").addEventListener("input", function() {
             let inputText = this.value.toUpperCase();
             let formattedText = "";
             for (let i = 0; i < inputText.length; i++) {
-                if (inputText[i].match(/[A-Z_]/)) {
+                if (inputText[i].match(/[A-Z _]/)) {
                     formattedText += inputText[i];
                 }
             }
