@@ -34,13 +34,12 @@
         const canvasSizeSlider = document.getElementById('canvasSize');
 
         let pixelSize = parseInt(pixelSizeSlider.value);
-        let canvasSize = parseInt(canvasSizeSlider.value); // Fixed the assignment here
+        let canvasSize = parseInt(canvasSizeSlider.value);
 
-        // Initialize the canvas size
         canvas.width = canvasSize;
         canvas.height = canvasSize;
 
-        // Draw the grid
+        // Initialize the grid
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = '#ccc';
@@ -58,7 +57,7 @@
             }
         }
 
-        // Handle color change
+        // Handle color selection
         colorPicker.addEventListener('input', () => {
             ctx.fillStyle = colorPicker.value;
         });
@@ -77,7 +76,7 @@
             drawGrid();
         });
 
-        // Initial grid drawing
+        // Draw initial grid
         drawGrid();
     </script>
 </body>
