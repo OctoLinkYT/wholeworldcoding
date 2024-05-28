@@ -5,24 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixel Art Creator</title>
     <style>
-        /* Style the pixel grid */
-        .pixel {
-            width: 20px;
-            height: 20px;
+        /* Add any necessary CSS styles here */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
             border: 1px solid #ccc;
-            display: inline-block;
         }
     </style>
 </head>
 <body>
     <h1>Pixel Art Creator</h1>
     <input type="color" id="colorPicker">
-    <input type="range" id="pixelSize" min="10" max="50" value="20">
-    <input type="range" id="canvasSize" min="200" max="800" value="400">
-    <div id="pixel-art-area"></div>
-
+    <input type="range" id="pixelSize" min="1" max="10" value="5">
+    <input type="range" id="canvasSize" min="100" max="500" value="300">
+    <canvas id="pixelCanvas"></canvas>
     <script>
-        const pixelArtArea = document.getElementById('pixel-art-area');
+        const canvas = document.getElementById('pixelCanvas');
+        const ctx = canvas.getContext('2d');
         const colorPicker = document.getElementById('colorPicker');
         const pixelSizeSlider = document.getElementById('pixelSize');
         const canvasSizeSlider = document.getElementById('canvasSize');
@@ -30,42 +36,48 @@
         let pixelSize = parseInt(pixelSizeSlider.value);
         let canvasSize = parseInt(canvasSizeSlider.value);
 
-        // Create the pixel grid
-        for (let i = 0; i < canvasSize / pixelSize; i++) {
-            for (let j = 0; j < canvasSize / pixelSize; j++) {
-                const pixel = document.createElement('div');
-                pixel.classList.add('pixel');
-                pixel.style.width = pixelSize + 'px';
-                pixel.style.height = pixelSize + 'px';
-                pixel.dataset.xCoordinate = j;
-                pixel.dataset.yCoordinate = i;
-                pixelArtArea.appendChild(pixel);
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+
+        // Initialize the grid
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#ccc';
+            for (let x = 0; x < canvas.width; x += pixelSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += pixelSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
             }
         }
 
-        // Handle color changes
+        // Handle color selection
         colorPicker.addEventListener('input', () => {
-            const color = colorPicker.value;
-            document.querySelectorAll('.pixel').forEach(pixel => {
-                pixel.style.backgroundColor = color;
-            });
+            ctx.fillStyle = colorPicker.value;
         });
 
-        // Handle pixel size changes
+        // Handle pixel size change
         pixelSizeSlider.addEventListener('input', () => {
             pixelSize = parseInt(pixelSizeSlider.value);
-            document.querySelectorAll('.pixel').forEach(pixel => {
-                pixel.style.width = pixelSize + 'px';
-                pixel.style.height = pixelSize + 'px';
-            });
+            drawGrid();
         });
 
-        // Handle canvas size changes
+        // Handle canvas size change
         canvasSizeSlider.addEventListener('input', () => {
             canvasSize = parseInt(canvasSizeSlider.value);
-            pixelArtArea.style.width = canvasSize + 'px';
-            pixelArtArea.style.height = canvasSize + 'px';
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+            drawGrid();
         });
+
+        // Draw initial grid
+        drawGrid();
     </script>
 </body>
 </html>
