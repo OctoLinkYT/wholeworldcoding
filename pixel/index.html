@@ -25,6 +25,8 @@
     <input type="color" id="colorPicker">
     <input type="range" id="pixelSize" min="1" max="10" value="5">
     <input type="range" id="canvasSize" min="100" max="500" value="300">
+    <button id="saveButton">Save as Image</button>
+    <button id="eraserButton">Eraser</button>
     <canvas id="pixelCanvas"></canvas>
     <script>
         const canvas = document.getElementById('pixelCanvas');
@@ -32,6 +34,8 @@
         const colorPicker = document.getElementById('colorPicker');
         const pixelSizeSlider = document.getElementById('pixelSize');
         const canvasSizeSlider = document.getElementById('canvasSize');
+        const saveButton = document.getElementById('saveButton');
+        const eraserButton = document.getElementById('eraserButton');
 
         let pixelSize = parseInt(pixelSizeSlider.value);
         let canvasSize = parseInt(canvasSizeSlider.value);
@@ -62,11 +66,15 @@
             ctx.fillStyle = colorPicker.value;
         });
 
-        // Handle pixel click
+        // Handle pixel click (draw or erase)
         canvas.addEventListener('click', (e) => {
             const x = Math.floor(e.offsetX / pixelSize) * pixelSize;
             const y = Math.floor(e.offsetY / pixelSize) * pixelSize;
-            ctx.fillRect(x, y, pixelSize, pixelSize);
+            if (eraserButton.classList.contains('active')) {
+                ctx.clearRect(x, y, pixelSize, pixelSize); // Erase
+            } else {
+                ctx.fillRect(x, y, pixelSize, pixelSize); // Draw
+            }
         });
 
         // Handle pixel size change
@@ -81,6 +89,20 @@
             canvas.width = canvasSize;
             canvas.height = canvasSize;
             drawGrid();
+        });
+
+        // Save as Image button
+        saveButton.addEventListener('click', () => {
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = 'pixel_art.png';
+            link.href = dataURL;
+            link.click();
+        });
+
+        // Eraser button
+        eraserButton.addEventListener('click', () => {
+            eraserButton.classList.toggle('active');
         });
 
         // Draw initial grid
