@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Pixel Art Creator</title>
+    <style>
+        /* Style the canvas to resemble a retro pixel grid */
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="pixelCanvas" width="200" height="200"></canvas>
+
+    <script>
+        const canvas = document.getElementById('pixelCanvas');
+        const ctx = canvas.getContext('2d');
+        const pixelSize = 10; // Adjust pixel size as needed
+        const numRows = canvas.height / pixelSize;
+        const numCols = canvas.width / pixelSize;
+        const pixelState = new Array(numRows).fill().map(() => new Array(numCols).fill(false));
+
+        // Handle mouse click on canvas
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / pixelSize);
+            const y = Math.floor((e.clientY - rect.top) / pixelSize);
+            pixelState[y][x] = !pixelState[y][x]; // Toggle pixel state
+            drawPixelArt();
+            updateUrlParameters();
+        });
+
+        // Draw the pixel art
+        function drawPixelArt() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < numRows; y++) {
+                for (let x = 0; x < numCols; x++) {
+                    if (pixelState[y][x]) {
+                        ctx.fillStyle = '#000'; // Black for "on" pixels
+                        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                    }
+                }
+            }
+        }
+
+        // Update URL parameters with pixel state
+        function updateUrlParameters() {
+            const params = [];
+            for (let y = 0; y < numRows; y++) {
+                for (let x = 0; x < numCols; x++) {
+                    if (pixelState[y][x]) {
+                        params.push(`${x}_${y}=1`);
+                    }
+                }
+            }
+            const newUrl = `${window.location.origin}${window.location.pathname}?${params.join('&')}`;
+            window.history.replaceState({}, '', newUrl);
+        }
+
+        // Load initial pixel state from URL parameters (if any)
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.forEach((value, key) => {
+            if (value === '1') {
+                const [x, y] = key.split('_').map(Number);
+                pixelState[y][x] = true;
+            }
+        });
+
+        // Initial draw
+        drawPixelArt();
+    </script>
+</body>
+</html>
