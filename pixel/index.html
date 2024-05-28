@@ -11,25 +11,49 @@
             background-color: #fff;
             image-rendering: pixelated;
         }
+        .grid {
+            background-color: #ddd;
+        }
+        .current-pixel {
+            background-color: #888;
+        }
     </style>
 </head>
 <body>
+    <input type="color" id="colorPicker">
+    <input type="range" id="sizeChanger" min="1" max="20" value="10">
     <canvas id="pixelCanvas" width="200" height="200"></canvas>
 
     <script>
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
-        const pixelSize = 10; // Adjust pixel size as needed
-        const numRows = canvas.height / pixelSize;
-        const numCols = canvas.width / pixelSize;
+        const pixelSizeInput = document.getElementById('sizeChanger');
+        const colorPicker = document.getElementById('colorPicker');
+        const numRows = canvas.height / pixelSizeInput.value;
+        const numCols = canvas.width / pixelSizeInput.value;
         const pixelState = new Array(numRows).fill().map(() => new Array(numCols).fill(false));
 
         // Handle mouse click on canvas
         canvas.addEventListener('click', (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / pixelSize);
-            const y = Math.floor((e.clientY - rect.top) / pixelSize);
+            const x = Math.floor((e.clientX - rect.left) / pixelSizeInput.value);
+            const y = Math.floor((e.clientY - rect.top) / pixelSizeInput.value);
             pixelState[y][x] = !pixelState[y][x]; // Toggle pixel state
+            drawPixelArt();
+            updateUrlParameters();
+        });
+
+        // Handle color picker change
+        colorPicker.addEventListener('input', () => {
+            drawPixelArt();
+            updateUrlParameters();
+        });
+
+        // Handle pixel size change
+        pixelSizeInput.addEventListener('input', () => {
+            const newSize = pixelSizeInput.value;
+            canvas.width = newSize * numCols;
+            canvas.height = newSize * numRows;
             drawPixelArt();
             updateUrlParameters();
         });
@@ -40,14 +64,17 @@
             for (let y = 0; y < numRows; y++) {
                 for (let x = 0; x < numCols; x++) {
                     if (pixelState[y][x]) {
-                        ctx.fillStyle = '#000'; // Black for "on" pixels
-                        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                        ctx.fillStyle = colorPicker.value;
+                        ctx.fillRect(x * pixelSizeInput.value, y * pixelSizeInput.value, pixelSizeInput.value, pixelSizeInput.value);
                     }
+                    // Draw grid
+                    ctx.fillStyle = (x === Math.floor(numCols / 2) && y === Math.floor(numRows / 2)) ? '#888' : '#ddd';
+                    ctx.fillRect(x * pixelSizeInput.value, y * pixelSizeInput.value, pixelSizeInput.value, pixelSizeInput.value);
                 }
             }
         }
 
-        // Update URL parameters with pixel state
+        // Update URL parameters with pixel state and color
         function updateUrlParameters() {
             const params = [];
             for (let y = 0; y < numRows; y++) {
@@ -57,7 +84,7 @@
                     }
                 }
             }
-            const newUrl = `${window.location.origin}${window.location.pathname}?${params.join('&')}`;
+            const newUrl = `${window.location.origin}${window.location.pathname}?color=${colorPicker.value}&${params.join('&')}`;
             window.history.replaceState({}, '', newUrl);
         }
 
