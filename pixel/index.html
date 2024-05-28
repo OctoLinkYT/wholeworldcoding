@@ -3,102 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Pixel Art Creator</title>
+    <title>Pixel Art Creator</title>
     <style>
-        /* Style the canvas to resemble a retro pixel grid */
-        canvas {
-            border: 1px solid #000;
-            background-color: #fff;
-            image-rendering: pixelated;
-        }
-        .grid {
-            background-color: #ddd;
-        }
-        .current-pixel {
-            background-color: #888;
+        /* Style the pixel grid */
+        .pixel {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ccc;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
+    <h1>Pixel Art Creator</h1>
     <input type="color" id="colorPicker">
-    <input type="range" id="sizeChanger" min="1" max="20" value="10">
-    <canvas id="pixelCanvas" width="200" height="200"></canvas>
+    <input type="range" id="pixelSize" min="10" max="50" value="20">
+    <input type="range" id="canvasSize" min="200" max="800" value="400">
+    <div id="pixel-art-area"></div>
 
     <script>
-        const canvas = document.getElementById('pixelCanvas');
-        const ctx = canvas.getContext('2d');
-        const pixelSizeInput = document.getElementById('sizeChanger');
+        const pixelArtArea = document.getElementById('pixel-art-area');
         const colorPicker = document.getElementById('colorPicker');
-        const numRows = canvas.height / pixelSizeInput.value;
-        const numCols = canvas.width / pixelSizeInput.value;
-        const pixelState = new Array(numRows).fill().map(() => new Array(numCols).fill(false));
+        const pixelSizeSlider = document.getElementById('pixelSize');
+        const canvasSizeSlider = document.getElementById('canvasSize');
 
-        // Handle mouse click on canvas
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / pixelSizeInput.value);
-            const y = Math.floor((e.clientY - rect.top) / pixelSizeInput.value);
-            pixelState[y][x] = !pixelState[y][x]; // Toggle pixel state
-            drawPixelArt();
-            updateUrlParameters();
-        });
+        let pixelSize = parseInt(pixelSizeSlider.value);
+        let canvasSize = parseInt(canvasSizeSlider.value);
 
-        // Handle color picker change
+        // Create the pixel grid
+        for (let i = 0; i < canvasSize / pixelSize; i++) {
+            for (let j = 0; j < canvasSize / pixelSize; j++) {
+                const pixel = document.createElement('div');
+                pixel.classList.add('pixel');
+                pixel.style.width = pixelSize + 'px';
+                pixel.style.height = pixelSize + 'px';
+                pixel.dataset.xCoordinate = j;
+                pixel.dataset.yCoordinate = i;
+                pixelArtArea.appendChild(pixel);
+            }
+        }
+
+        // Handle color changes
         colorPicker.addEventListener('input', () => {
-            drawPixelArt();
-            updateUrlParameters();
+            const color = colorPicker.value;
+            document.querySelectorAll('.pixel').forEach(pixel => {
+                pixel.style.backgroundColor = color;
+            });
         });
 
-        // Handle pixel size change
-        pixelSizeInput.addEventListener('input', () => {
-            const newSize = pixelSizeInput.value;
-            canvas.width = newSize * numCols;
-            canvas.height = newSize * numRows;
-            drawPixelArt();
-            updateUrlParameters();
+        // Handle pixel size changes
+        pixelSizeSlider.addEventListener('input', () => {
+            pixelSize = parseInt(pixelSizeSlider.value);
+            document.querySelectorAll('.pixel').forEach(pixel => {
+                pixel.style.width = pixelSize + 'px';
+                pixel.style.height = pixelSize + 'px';
+            });
         });
 
-        // Draw the pixel art
-        function drawPixelArt() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let y = 0; y < numRows; y++) {
-                for (let x = 0; x < numCols; x++) {
-                    if (pixelState[y][x]) {
-                        ctx.fillStyle = colorPicker.value;
-                        ctx.fillRect(x * pixelSizeInput.value, y * pixelSizeInput.value, pixelSizeInput.value, pixelSizeInput.value);
-                    }
-                    // Draw grid
-                    ctx.fillStyle = (x === Math.floor(numCols / 2) && y === Math.floor(numRows / 2)) ? '#888' : '#ddd';
-                    ctx.fillRect(x * pixelSizeInput.value, y * pixelSizeInput.value, pixelSizeInput.value, pixelSizeInput.value);
-                }
-            }
-        }
-
-        // Update URL parameters with pixel state and color
-        function updateUrlParameters() {
-            const params = [];
-            for (let y = 0; y < numRows; y++) {
-                for (let x = 0; x < numCols; x++) {
-                    if (pixelState[y][x]) {
-                        params.push(`${x}_${y}=1`);
-                    }
-                }
-            }
-            const newUrl = `${window.location.origin}${window.location.pathname}?color=${colorPicker.value}&${params.join('&')}`;
-            window.history.replaceState({}, '', newUrl);
-        }
-
-        // Load initial pixel state from URL parameters (if any)
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.forEach((value, key) => {
-            if (value === '1') {
-                const [x, y] = key.split('_').map(Number);
-                pixelState[y][x] = true;
-            }
+        // Handle canvas size changes
+        canvasSizeSlider.addEventListener('input', () => {
+            canvasSize = parseInt(canvasSizeSlider.value);
+            pixelArtArea.style.width = canvasSize + 'px';
+            pixelArtArea.style.height = canvasSize + 'px';
         });
-
-        // Initial draw
-        drawPixelArt();
     </script>
 </body>
 </html>
