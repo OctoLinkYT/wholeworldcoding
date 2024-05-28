@@ -62,6 +62,13 @@
             ctx.fillStyle = colorPicker.value;
         });
 
+        // Handle pixel click
+        canvas.addEventListener('click', (e) => {
+            const x = Math.floor(e.offsetX / pixelSize) * pixelSize;
+            const y = Math.floor(e.offsetY / pixelSize) * pixelSize;
+            ctx.fillRect(x, y, pixelSize, pixelSize);
+        });
+
         // Handle pixel size change
         pixelSizeSlider.addEventListener('input', () => {
             pixelSize = parseInt(pixelSizeSlider.value);
