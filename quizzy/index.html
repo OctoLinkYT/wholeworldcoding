@@ -155,86 +155,27 @@ window.onload = function() {
             const urlParams = getUrlParams(window.location.search);
             const verbKeys = Object.keys(urlParams).filter(key => key.startsWith('verb'));
             const questionKeys = Object.keys(urlParams).filter(key => key.startsWith('question'));
-// Function to shuffle an array using the Fisher-Yates algorithm
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
 
-// Function to initialize the puzzle based on URL parameters
-function initializePuzzle() {
-    const urlParams = getUrlParams(window.location.search);
-    const verbKeys = Object.keys(urlParams).filter(key => key.startsWith('verb'));
-    const questionKeys = Object.keys(urlParams).filter(key => key.startsWith('question'));
+            verbList = verbKeys.map((key, index) => ({
+                verb: urlParams[key].toUpperCase(),
+                question: questionKeys[index] ? urlParams[questionKeys[index]] : ""
+            }));
 
-    verbList = verbKeys.map((key, index) => ({
-        verb: urlParams[key].toUpperCase(),
-        question: questionKeys[index] ? urlParams[questionKeys[index]] : ""
-    }));
-
-    if (verbList.length > 0) {
-        shuffleArray(verbList); // Shuffle the questions initially
-        currentIndex = 0;
-        totalQuestionsAnswered = 0;
-        totalCorrectAnswers = 0;
-        // Initialize the first question
-        currentQuestion = verbList[currentIndex].question;
-        answer = verbList[currentIndex].verb.toUpperCase();
-        // Display the first question
-        document.getElementById('bruh').innerText = currentQuestion;
-        // Focus on the input field initially
-        document.getElementById("textInput").focus();
-    } else {
-        console.error("No verbs found in URL parameters.");
-    }
-}
-
-// Function to handle Enter key press event
-function enterKeyPressed(event) {
-    if (event.keyCode == 13) {
-        if (document.getElementById('textInput').value === answer) {
-            var textBox = document.getElementById("textInput");
-            textBox.style.color = "lightgreen";
-            textBox.value = "SUCCESS";
-            document.getElementById("textInput").blur(); // Remove focus from the input field
-            setTimeout(() => {
-                textBox.value = "";
-                textBox.style.color = "lightblue";
-                // Increase the total questions answered
-                totalQuestionsAnswered++;
-                // Increase the total correct answers
-                totalCorrectAnswers++;
-                // Update the score display
-                document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
-                // Shuffle the questions before moving to the next question
-                shuffleArray(verbList);
-                // Move to the next question/verb
-                currentIndex = 0; // Always reset to the first question after shuffling
+            if (verbList.length > 0) {
+                currentIndex = 0;
+                totalQuestionsAnswered = 0;
+                totalCorrectAnswers = 0;
+                // Initialize the first question
                 currentQuestion = verbList[currentIndex].question;
                 answer = verbList[currentIndex].verb.toUpperCase();
-                // Display the next question
+                // Display the first question
                 document.getElementById('bruh').innerText = currentQuestion;
-            }, 1000);
-        } else {
-            var textBox = document.getElementById("textInput");
-            textBox.style.color = "red";
-            textBox.value = "WRONG";
-            // Increase the total questions answered
-            totalQuestionsAnswered++;
-            // Update the score display
-            document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
-            setTimeout(() => {
-                textBox.value = "";
-                textBox.style.color = "lightblue";
-            }, 1000);
+                // Focus on the input field initially
+                document.getElementById("textInput").focus();
+            } else {
+                console.error("No verbs found in URL parameters.");
+            }
         }
-        return true;
-    } else {
-        document.getElementById("textInput").focus();
-    }
-}
 
       document.getElementById("textInput").addEventListener("input", function() {
             let inputText = this.value.toUpperCase();
@@ -246,6 +187,49 @@ function enterKeyPressed(event) {
             }
             this.value = formattedText;
         });
+
+        // Function to handle Enter key press event
+        function enterKeyPressed(event) {
+            if (event.keyCode == 13) {
+                if (document.getElementById('textInput').value === answer) {
+                    var textBox = document.getElementById("textInput");
+                    textBox.style.color = "lightgreen";
+                    textBox.value = "SUCCESS";
+                    document.getElementById("textInput").blur(); // Remove focus from the input field
+                    setTimeout(() => {
+                        textBox.value = "";
+                        textBox.style.color = "lightblue";
+                        // Increase the total questions answered
+                        totalQuestionsAnswered++;
+                        // Increase the total correct answers
+                        totalCorrectAnswers++;
+                        // Update the score display
+                        document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
+                        // Move to the next question/verb
+                        currentIndex = (currentIndex + 1) % verbList.length;
+                        currentQuestion = verbList[currentIndex].question;
+                        answer = verbList[currentIndex].verb.toUpperCase();
+                        // Display the next question
+                        document.getElementById('bruh').innerText = currentQuestion;
+                    }, 1000);
+                } else {
+                    var textBox = document.getElementById("textInput");
+                    textBox.style.color = "red";
+                    textBox.value = "WRONG";
+                    // Increase the total questions answered
+                    totalQuestionsAnswered++;
+                    // Update the score display
+                    document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
+                    setTimeout(() => {
+                        textBox.value = "";
+                        textBox.style.color = "lightblue";
+                    }, 1000);
+                }
+                return true;
+            } else {
+                document.getElementById("textInput").focus();
+            }
+        }
 
         // Function to start the loop
         function startLoop() {
