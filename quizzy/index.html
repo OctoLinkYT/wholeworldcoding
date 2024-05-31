@@ -198,18 +198,9 @@
         }
 
 document.getElementById("textInput").addEventListener("input", function() {
-    let inputText = this.value;
-    let formattedText = "";
-    for (let i = 0; i < inputText.length; i++) {
-        if (inputText[i].match(/[a-zA-Z]/)) {
-            formattedText += inputText[i].toUpperCase();
-            this.value = this.value.toLocaleUpperCase('es-ES');
-        } else {
-            formattedText += inputText[i];
-        }
-    }
-    this.value = formattedText;
+    this.value = this.value.toLowerCase();
 });
+
 
         // Function to handle Enter key press event
         function enterKeyPressed(event) {
