@@ -29,7 +29,7 @@
 
         .container {
             max-width: 800px;
-            padding: 20px;
+            /*padding: 20px;*/
         }
 
         #phrase-container {
@@ -45,7 +45,6 @@
             font-size: 24px;
             padding: 10px;
             width: 80%;
-            max-width: 400px;
         }
 
         a {
@@ -90,9 +89,9 @@
             color: #000000; /* Black color */
         }
 .skip-button {
-    background-color: #4CAF50; /* Green */
+    background-color: white; 
     border: none;
-    color: white;
+    color: black;
     padding: 15px 32px;
     text-align: center;
     text-decoration: none;
@@ -100,6 +99,8 @@
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
+    font-family: "VCR OSD Mono";
+    src: url("https://static.tumblr.com/nlxfn1e/7Pwqv8mt8/vcr_osd_mono_1.001.ttf") format("truetype");
 }
 
     </style>
@@ -291,5 +292,16 @@ document.getElementById("textInput").addEventListener("input", function() {
 
         startLoop();
     </script>
+<script>
+  function adjustWidth() {
+    const inputElement = document.getElementById("textInput");
+    const inputValue = inputElement.value;
+    const charCount = inputValue.length;
+    // Set the width based on the character count (adjust as needed)
+    inputElement.style.width = String(charCount * 20)+"px"; // Adjust the multiplier as desired
+  }
+  setInterval(adjustWidth, 10);
+</script>
+
 </body>
 </html>
