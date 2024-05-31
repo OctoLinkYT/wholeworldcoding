@@ -225,7 +225,7 @@ document.getElementById("textInput").addEventListener("input", function() {
                 } else {
                     var textBox = document.getElementById("textInput");
                     textBox.style.color = "red";
-                    textBox.value = "WRONG";
+                    textBox.value = "WRONG - retype:" + answer;
                     // Increase the total questions answered
                     totalQuestionsAnswered++;
                     // Update the score display
