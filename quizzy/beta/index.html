@@ -295,7 +295,7 @@ document.getElementById("textInput").addEventListener("input", function() {
   function adjustWidth() {
     const inputElement = document.getElementById("textInput");
     const inputValue = inputElement.value;
-    const charCount = inputValue.length;
+    const charCount = inputValue.length + 1;
     // Set the width based on the character count (adjust as needed)
     inputElement.style.width = `${charCount * 30}px`; // Adjust the multiplier as desired
   }
