@@ -45,7 +45,6 @@
             font-size: 24px;
             padding: 10px;
             width: 80%;
-            max-width: 400px;
         }
 
         a {
@@ -295,9 +294,9 @@ document.getElementById("textInput").addEventListener("input", function() {
   function adjustWidth() {
     const inputElement = document.getElementById("textInput");
     const inputValue = inputElement.value;
-    const charCount = inputValue.length + 1;
+    const charCount = inputValue.length;
     // Set the width based on the character count (adjust as needed)
-    inputElement.style.width = `${charCount * 30}px`; // Adjust the multiplier as desired
+    inputElement.style.width = `${charCount * 25}px`; // Adjust the multiplier as desired
   }
   setInterval(adjustWidth, 10);
 </script>
