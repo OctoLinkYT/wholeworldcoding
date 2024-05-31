@@ -228,43 +228,43 @@ document.getElementById("textInput").addEventListener("input", function() {
 });
 
 
-function enterKeyPressed(event) {
-    if (event.keyCode == 13) {
-        if (document.getElementById('textInput').value === answer) {
-            var textBox = document.getElementById("textInput");
-            textBox.style.color = "lightgreen";
-            textBox.value = "SUCCESS";
-            document.getElementById("textInput").blur(); // Remove focus from the input field
-            setTimeout(() => {
-                textBox.value = "";
-                textBox.style.color = "lightblue";
-                // Increase the total questions answered
-                totalQuestionsAnswered++;
-                // Increase the total correct answers
-                totalCorrectAnswers++;
-                // Update the score display
-                document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
-                // Load the next question
-                loadNextQuestion();
-            }, 1000);
-        } else {
-            var textBox = document.getElementById("textInput");
-            textBox.style.color = "red";
-            textBox.value = "WRONG";
-            // Display "RETYPE: [correct answer]" in the bruh paragraph element
-            document.getElementById('bruh').innerText = "RETYPE: " + answer;
-            setTimeout(() => {
-                textBox.value = "";
-                textBox.style.color = "lightblue";
-                // Reset the bruh paragraph element after 2 seconds
-                document.getElementById('bruh').innerText = currentQuestion;
-            }, 2000);
-        }
-        return true;
-    } else {
-        document.getElementById("textInput").focus();
-    }
-}
+        // Function to handle Enter key press event
+        function enterKeyPressed(event) {
+            if (event.keyCode == 13) {
+                if (document.getElementById('textInput').value === answer) {
+                    var textBox = document.getElementById("textInput");
+                    textBox.style.color = "lightgreen";
+                    textBox.value = "SUCCESS";
+                    document.getElementById("textInput").blur(); // Remove focus from the input field
+                    setTimeout(() => {
+                        textBox.value = "";
+                        textBox.style.color = "lightblue";
+                        // Increase the total questions answered
+                        totalQuestionsAnswered++;
+                        // Increase the total correct answers
+                        totalCorrectAnswers++;
+                        // Update the score display
+                        document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
+                        // Load the next question
+                        loadNextQuestion();
+                    }, 1000);
+                } else {
+                    var textBox = document.getElementById("textInput");
+                    textBox.style.color = "red";
+                    textBox.value = "WRONG - retype:" + answer;
+                    // Increase the total questions answered
+                    totalQuestionsAnswered++;
+                    // Update the score display
+                    document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
+                    setTimeout(() => {
+                        textBox.value = "";
+                        textBox.style.color = "lightblue";
+                    }, 1000);
+                }
+                return true;
+            } else {
+                document.getElementById("textInput").focus();
+            }
 
 
         // Function to start the loop
