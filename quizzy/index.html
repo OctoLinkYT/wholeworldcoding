@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quizzy</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         /* Common styles */
         @font-face {
@@ -86,11 +85,10 @@
         .toggle-button:hover {
             transform: scale(1.1);
         }
-.dark-mode #mode-icon {
-    color: #000000; /* Black color */
-}
 
-
+        .dark-mode #mode-icon {
+            color: #000000; /* Black color */
+        }
     </style>
 </head>
 <body>
@@ -100,45 +98,46 @@
         <input type="text" id="textInput" name="textInput" placeholder="" onkeypress="return enterKeyPressed(event)" required>
         <p>Score: <span id="score">0/0</span></p>
     </div>
-<button class="toggle-button" onclick="toggleMode()">
-    <i id="mode-icon" class="fas fa-sun"></i>
-</button>
+    <button class="toggle-button" onclick="toggleMode()">
+        <i id="mode-icon" class="fas fa-sun"></i>
+    </button>
 
     <script>
-  function removeUrlParams() {
-    const urlWithoutParams = window.location.pathname;
-    window.history.replaceState({}, document.title, urlWithoutParams);
-}
-// Function to toggle between dark mode and light mode
-function toggleMode() {
-    const body = document.body;
-    body.classList.toggle("dark-mode");
-    body.classList.toggle("light-mode");
+        function removeUrlParams() {
+            const urlWithoutParams = window.location.pathname;
+            window.history.replaceState({}, document.title, urlWithoutParams);
+        }
 
-    // Change icon based on current mode
-    const modeIcon = document.getElementById("mode-icon");
-    if (body.classList.contains("dark-mode")) {
-        modeIcon.classList.remove("fa-sun");
-        modeIcon.classList.add("fa-moon");
-    } else {
-        modeIcon.classList.remove("fa-moon");
-        modeIcon.classList.add("fa-sun");
-    }
-}
+        // Function to toggle between dark mode and light mode
+        function toggleMode() {
+            const body = document.body;
+            body.classList.toggle("dark-mode");
+            body.classList.toggle("light-mode");
 
-// Ensure correct symbol is shown on load
-window.onload = function() {
-    removeUrlParams()
-    const body = document.body;
-    const modeIcon = document.getElementById("mode-icon");
-    if (body.classList.contains("dark-mode")) {
-        modeIcon.classList.remove("fa-sun");
-        modeIcon.classList.add("fa-moon");
-    } else {
-        modeIcon.classList.remove("fa-moon");
-        modeIcon.classList.add("fa-sun");
-    }
-};
+            // Change icon based on current mode
+            const modeIcon = document.getElementById("mode-icon");
+            if (body.classList.contains("dark-mode")) {
+                modeIcon.classList.remove("fa-sun");
+                modeIcon.classList.add("fa-moon");
+            } else {
+                modeIcon.classList.remove("fa-moon");
+                modeIcon.classList.add("fa-sun");
+            }
+        }
+
+        // Ensure correct symbol is shown on load
+        window.onload = function() {
+            removeUrlParams();
+            const body = document.body;
+            const modeIcon = document.getElementById("mode-icon");
+            if (body.classList.contains("dark-mode")) {
+                modeIcon.classList.remove("fa-sun");
+                modeIcon.classList.add("fa-moon");
+            } else {
+                modeIcon.classList.remove("fa-moon");
+                modeIcon.classList.add("fa-sun");
+            }
+        };
 
         // Function to parse URL parameters
         function getUrlParams(url) {
@@ -148,6 +147,14 @@ window.onload = function() {
                 params[key] = value;
             }
             return params;
+        }
+
+        // Function to shuffle an array using the Fisher-Yates algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
         }
 
         // Function to initialize the puzzle based on URL parameters
@@ -162,14 +169,13 @@ window.onload = function() {
             }));
 
             if (verbList.length > 0) {
+                shuffleArray(verbList); // Shuffle the questions initially
+                remainingQuestions = [...verbList]; // Clone the initial verbList to remainingQuestions
                 currentIndex = 0;
                 totalQuestionsAnswered = 0;
                 totalCorrectAnswers = 0;
                 // Initialize the first question
-                currentQuestion = verbList[currentIndex].question;
-                answer = verbList[currentIndex].verb.toUpperCase();
-                // Display the first question
-                document.getElementById('bruh').innerText = currentQuestion;
+                loadNextQuestion();
                 // Focus on the input field initially
                 document.getElementById("textInput").focus();
             } else {
@@ -177,16 +183,32 @@ window.onload = function() {
             }
         }
 
-      document.getElementById("textInput").addEventListener("input", function() {
-            let inputText = this.value.toUpperCase();
-            let formattedText = "";
-            for (let i = 0; i < inputText.length; i++) {
-                if (inputText[i].match(/[A-Z _]/)) {
-                    formattedText += inputText[i];
-                }
+        // Function to load the next question
+        function loadNextQuestion() {
+            if (remainingQuestions.length === 0) {
+                // All questions have been answered, reset the remainingQuestions
+                remainingQuestions = [...verbList];
+                shuffleArray(remainingQuestions);
             }
-            this.value = formattedText;
-        });
+
+            const nextQuestion = remainingQuestions.shift(); // Get the next question and remove it from the list
+            currentQuestion = nextQuestion.question;
+            answer = nextQuestion.verb.toUpperCase();
+            document.getElementById('bruh').innerText = currentQuestion;
+        }
+
+document.getElementById("textInput").addEventListener("input", function() {
+    let inputText = this.value;
+    let formattedText = "";
+    for (let i = 0; i < inputText.length; i++) {
+        if (inputText[i].match(/[a-zA-Z]/)) {
+            formattedText += inputText[i].toUpperCase();
+        } else {
+            formattedText += inputText[i];
+        }
+    }
+    this.value = formattedText;
+});
 
         // Function to handle Enter key press event
         function enterKeyPressed(event) {
@@ -205,12 +227,8 @@ window.onload = function() {
                         totalCorrectAnswers++;
                         // Update the score display
                         document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
-                        // Move to the next question/verb
-                        currentIndex = (currentIndex + 1) % verbList.length;
-                        currentQuestion = verbList[currentIndex].question;
-                        answer = verbList[currentIndex].verb.toUpperCase();
-                        // Display the next question
-                        document.getElementById('bruh').innerText = currentQuestion;
+                        // Load the next question
+                        loadNextQuestion();
                     }, 1000);
                 } else {
                     var textBox = document.getElementById("textInput");
@@ -240,6 +258,7 @@ window.onload = function() {
         // Function to continuously focus on the text input field
         let stopLoop = false;
         let verbList = [];
+        let remainingQuestions = [];
         let currentIndex = 0;
         let totalQuestionsAnswered = 0;
         let totalCorrectAnswers = 0;
