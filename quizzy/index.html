@@ -89,6 +89,19 @@
         .dark-mode #mode-icon {
             color: #000000; /* Black color */
         }
+.skip-button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
     </style>
 </head>
 <body>
@@ -97,12 +110,23 @@
         <p id="bruh"></p>
         <input type="text" id="textInput" name="textInput" placeholder="" onkeypress="return enterKeyPressed(event)" required>
         <p>Score: <span id="score">0/0</span></p>
+        <button id="skipButton" class="skip-button" onclick="skipQuestion()">Skip Question</button>
+
     </div>
     <button class="toggle-button" onclick="toggleMode()">
         <i id="mode-icon" class="fas fa-sun"></i>
     </button>
 
     <script>
+function skipQuestion() {
+    // Increase the total questions answered
+    totalQuestionsAnswered++;
+    // Update the score display
+    document.getElementById('score').innerText = totalCorrectAnswers + '/' + totalQuestionsAnswered;
+    // Load the next question
+    loadNextQuestion();
+}
+
         function removeUrlParams() {
             const urlWithoutParams = window.location.pathname;
             window.history.replaceState({}, document.title, urlWithoutParams);
