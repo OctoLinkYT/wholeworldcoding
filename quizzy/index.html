@@ -217,7 +217,7 @@ function skipQuestion() {
 
             const nextQuestion = remainingQuestions.shift(); // Get the next question and remove it from the list
             currentQuestion = nextQuestion.question;
-            answer = nextQuestion.verb.toUpperCase();
+            answer = nextQuestion.verb.toLowerCase();
             document.getElementById('bruh').innerText = currentQuestion;
         }
 
