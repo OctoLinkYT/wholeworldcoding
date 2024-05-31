@@ -203,6 +203,7 @@ document.getElementById("textInput").addEventListener("input", function() {
     for (let i = 0; i < inputText.length; i++) {
         if (inputText[i].match(/[a-zA-Z]/)) {
             formattedText += inputText[i].toUpperCase();
+            this.value = this.value.toLocaleUpperCase('es-ES');
         } else {
             formattedText += inputText[i];
         }
