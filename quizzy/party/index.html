@@ -692,4 +692,63 @@ document.getElementById("textInput").addEventListener("input", function() {
       // Call the clearScreen function after 5 minutes
     </script>
   </body>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #mute-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            outline: none;
+        }
+        #mute-button i {
+            font-size: 20px;
+        }
+    </style>
+    <audio id="bg-audio" loop>
+        <source src="bg.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <button id="mute-button">
+        <i id="mute-icon" class="fas fa-volume-up"></i>
+    </button>
+
+    <script>
+        const audio = document.getElementById('bg-audio');
+        const muteButton = document.getElementById('mute-button');
+        const muteIcon = document.getElementById('mute-icon');
+
+        // Play the audio on load
+        window.onload = () => {
+            audio.play();
+        };
+
+        // Toggle mute function
+        muteButton.addEventListener('click', () => {
+            if (audio.muted) {
+                audio.muted = false;
+                muteIcon.classList.remove('fa-volume-mute');
+                muteIcon.classList.add('fa-volume-up');
+            } else {
+                audio.muted = true;
+                muteIcon.classList.remove('fa-volume-up');
+                muteIcon.classList.add('fa-volume-mute');
+            }
+        });
+    </script>
 </html>
