@@ -426,19 +426,9 @@
         }
       }
 
-      // Listen for input in the text input field
-      document
-        .getElementById("textInput")
-        .addEventListener("input", function () {
-          let inputText = this.value.toUpperCase();
-          let formattedText = "";
-          for (let i = 0; i < inputText.length; i++) {
-            if (inputText[i].match(/[A-Z_]/)) {
-              formattedText += inputText[i];
-            }
-          }
-          this.value = formattedText.substr(0, 5);
-        });
+document.getElementById("textInput").addEventListener("input", function() {
+    this.value = this.value.toLowerCase();
+});
 
       // Function to handle Enter key press event
       function enterKeyPressed(event) {
