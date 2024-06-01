@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quizzy Party</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <style>
+      /* Common styles */
+      @font-face {
+        font-family: "VCR OSD Mono";
+        src: url("https://static.tumblr.com/nlxfn1e/7Pwqv8mt8/vcr_osd_mono_1.001.ttf")
+          format("truetype");
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "VCR OSD Mono";
+        color: #ffffff;
+        background-color: #000000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        text-align: center;
+        transition: background-color 0.5s ease;
+        position: relative; /* Ensure the button's absolute position is relative to the body */
+      }
+
+      .container {
+        max-width: 800px;
+        padding: 20px;
+        position: relative;
+      }
+
+      #phrase-container {
+        margin-top: 50px;
+      }
+
+      input {
+        font-family: "VCR OSD Mono";
+        color: #ffffff;
+        background-color: #000000;
+        border: none;
+        text-align: center;
+        font-size: 24px;
+        padding: 10px;
+        width: 80%;
+        max-width: 400px;
+      }
+      button {
+        font-size: 16px;
+      }
+      a {
+        color: #ff6b6b; /* Light red color */
+        text-decoration: none; /* Remove underline */
+      }
+
+      a:hover {
+        text-decoration: underline; /* Underline on hover */
+      }
+
+      /* Dark mode */
+      .dark-mode {
+        background-color: #000000;
+        color: #ffffff;
+      }
+
+      /* Light mode */
+      .light-mode {
+        background-color: #ffffff;
+        color: #000000;
+      }
+
+      /* Button styles */
+      .toggle-button {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .toggle-button:hover {
+        transform: scale(1.1);
+      }
+
+      .dark-mode #mode-icon {
+        color: #000000; /* Black color */
+      }
+
+      /* Timer styles */
+      #timer {
+        font-size: 24px;
+        margin-top: 20px;
+      }
+
+      /* Hint styles */
+      .hint-buttons,
+      .item-buttons {
+        margin-top: 20px;
+      }
+
+      .hint-button,
+      .item-button {
+        background: none;
+        border: none;
+        color: #ff6b6b;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 0 10px;
+      }
+
+      .hint-button:hover,
+      .item-button:hover {
+        text-decoration: underline;
+      }
+
+      /* Feedback styles */
+      .feedback {
+        margin-top: 20px;
+        font-size: 24px;
+      }
+
+      .success {
+        color: lightgreen;
+      }
+
+      .failure {
+        color: red;
+      }
+
+      /* Leaderboard styles */
+      #leaderboard {
+        display: none;
+        margin-top: 20px;
+        font-size: 24px;
+      }
+
+      /* Store styles */
+      .store-icon {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #ffffff;
+      }
+
+      .store-icon:hover {
+        text-decoration: underline;
+      }
+
+      .store-menu {
+        position: absolute;
+        bottom: 70px;
+        right: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        border-radius: 5px;
+        padding: 10px;
+        display: none;
+      }
+
+      .store-menu button {
+        background-color: transparent;
+        border: none;
+        color: #ffffff;
+        font-size: 18px;
+        cursor: pointer;
+        margin: 5px 0;
+        padding: 5px 10px;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+      }
+
+      .store-menu button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      @keyframes rainbow {
+        0% {
+          color: #ff9999;
+        } /* Light Red */
+        16.67% {
+          color: #ffb366;
+        } /* Light Orange */
+        33.33% {
+          color: #ffff99;
+        } /* Light Yellow */
+        50% {
+          color: #99ff99;
+        } /* Light Green */
+        66.67% {
+          color: #99ccff;
+        } /* Light Blue */
+        83.33% {
+          color: #cc99ff;
+        } /* Light Indigo */
+        100% {
+          color: #ff99cc;
+        } /* Light Violet */
+      }
+      .rainbow-text {
+        animation: rainbow 4s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="towerCanvas" width="400" height="400"></canvas>
+
+    <div class="container">
+      <h1>QUIZZY <span class="rainbow-text">PARTY</span></h1>
+      <p>Tower <span id="towercounter"></span></p>
+      <p id="bruh"></p>
+      <p id="timer"><span id="timeLeft">30</span></p>
+      <input
+        type="text"
+        id="textInput"
+        name="textInput"
+        placeholder=""
+        onkeypress="return enterKeyPressed(event)"
+        required
+      />
+      <p>
+        Score: <span id="score">0/0</span> Points: <span id="points">0</span>
+      </p>
+      <h1 id="feedback">
+        
+      </h1>
+      <i
+        >It's party time! Answer questions to move up higher levels on the
+        tower. Every twenty floors, you clear a tower. Press [t] for upgrades
+        and power-ups.</i
+      >
+
+      <dialog id="dialog">
+        <div class="hint-buttons">
+          <button class="hint-button" onclick="useHint('firstLetter')">
+            <i class="fas fa-lightbulb"></i> First Letter (-1 Point)
+          </button>
+          <button class="hint-button" onclick="useHint('randomLetter')">
+            <i class="fas fa-random"></i> Random Letter (-1 Point)
+          </button>
+          <button class="item-button" onclick="useItem('skipQuestion')">
+            <i class="fas fa-forward"></i> Skip Question (-3 Points)
+          </button>
+          <button class="item-button" onclick="useItem('extraTime')">
+            <i class="fas fa-clock"></i> Extra Time (-2 Points)
+          </button>
+          <button class="item-button" onclick="useItem('revealAnswer')">
+            <i class="fas fa-eye"></i> Reveal Answer (-5 Points)
+          </button>
+        </div>
+      </dialog>
+    </div>
+    <button class="toggle-button" onclick="toggleMode()">
+      <i id="mode-icon" class="fas fa-sun"></i>
+    </button>
+
+    <script>
+      var towerCount = 1;
+      var canvas = document.getElementById("towerCanvas");
+      var ctx = canvas.getContext("2d");
+
+      // Initialize variables
+      var floorHeight = 20; // Height of each floor
+      var floorCount = 0; // Initial floor count
+
+      // Function to draw a floor with a number
+      function drawFloor() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw the tower floors
+        for (var i = 0; i < floorCount; i++) {
+          ctx.fillStyle = "brown";
+          ctx.fillRect(
+            50,
+            canvas.height - (i + 1) * floorHeight,
+            300,
+            floorHeight
+          );
+          // Draw the number on each floor
+          ctx.fillStyle = "white";
+          ctx.font = "12px monospace";
+          ctx.fillText(
+            "Floor " + (i + 1),
+            200,
+            canvas.height - i * floorHeight - floorHeight / 2
+          );
+        }
+      }
+
+      // Call the drawFloor function initially
+      drawFloor();
+
+      // Function to increase floor count and redraw the tower
+      function increaseFloorCount() {
+        floorCount++;
+        drawFloor();
+        // Check if floor count is twenty
+        if (floorCount === 20) {
+          floorCount = 1; // Reset floor count to 1
+          drawFloor();
+          towerCount++;
+        }
+      }
+      increaseFloorCount();
+
+      function drawFloor() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the tower floors
+        for (var i = 0; i < floorCount; i++) {
+          // Generate random RGB values for color
+          var red = Math.floor(Math.random() * 256);
+          var green = Math.floor(Math.random() * 256);
+          var blue = Math.floor(Math.random() * 256);
+          ctx.fillStyle = "rgb(" + red + "," + green + "," + blue + ")";
+          ctx.fillRect(
+            50,
+            canvas.height - (i + 1) * floorHeight,
+            300,
+            floorHeight
+          );
+
+          // Draw the number on each floor
+          ctx.fillStyle = "white";
+          ctx.font = "12px monospace";
+          var text = "Floor " + (i + 1);
+          var textWidth = ctx.measureText(text).width; // Get the width of the text
+          var x = 50 + (300 - textWidth) / 2; // Calculate the x-coordinate to center the text
+          ctx.fillText(
+            text,
+            x,
+            canvas.height - i * floorHeight - floorHeight / 2
+          );
+        }
+      }
+
+      // Function to remove URL parameters
+      function removeUrlParams() {
+        const urlWithoutParams = window.location.pathname;
+        window.history.replaceState({}, document.title, urlWithoutParams);
+      }
+
+      // Function to toggle between dark mode and light mode
+      function toggleMode() {
+        const body = document.body;
+        body.classList.toggle("dark-mode");
+        body.classList.toggle("light-mode");
+
+        // Change icon based on current mode
+        const modeIcon = document.getElementById("mode-icon");
+        if (body.classList.contains("dark-mode")) {
+          modeIcon.classList.remove("fa-sun");
+          modeIcon.classList.add("fa-moon");
+        } else {
+          modeIcon.classList.remove("fa-moon");
+          modeIcon.classList.add("fa-sun");
+        }
+      }
+
+      // Ensure correct symbol is shown on load
+      window.onload = function () {
+        removeUrlParams();
+        const body = document.body;
+        const modeIcon = document.getElementById("mode-icon");
+        if (body.classList.contains("dark-mode")) {
+          modeIcon.classList.remove("fa-sun");
+          modeIcon.classList.add("fa-moon");
+        } else {
+          modeIcon.classList.remove("fa-moon");
+          modeIcon.classList.add("fa-sun");
+        }
+      };
+
+      // Function to parse URL parameters
+      function getUrlParams(url) {
+        const params = {};
+        const urlParams = new URLSearchParams(url);
+        for (const [key, value] of urlParams.entries()) {
+          params[key] = value;
+        }
+        return params;
+      }
+
+      // Function to initialize the puzzle based on URL parameters
+      function initializePuzzle() {
+        const urlParams = getUrlParams(window.location.search);
+        const verbKeys = Object.keys(urlParams).filter((key) =>
+          key.startsWith("verb")
+        );
+        const questionKeys = Object.keys(urlParams).filter((key) =>
+          key.startsWith("question")
+        );
+
+        verbList = verbKeys.map((key, index) => ({
+          verb: urlParams[key].toUpperCase(),
+          question: questionKeys[index] ? urlParams[questionKeys[index]] : "",
+        }));
+
+        if (verbList.length > 0) {
+          currentIndex = 0;
+          totalQuestionsAnswered = 0;
+          totalCorrectAnswers = 0;
+          currentLevel = 1;
+          points = 0;
+          // Initialize the first question
+          currentQuestion = verbList[currentIndex].question;
+          answer = verbList[currentIndex].verb.toUpperCase();
+          // Display the first question
+          document.getElementById(
+            "bruh"
+          ).innerText = `Level ${currentLevel}: ${currentQuestion}`;
+          // Focus on the input field initially
+          document.getElementById("textInput").focus();
+          startTimer();
+        } else {
+          console.error("No verbs found in URL parameters.");
+        }
+      }
+
+      // Listen for input in the text input field
+      document
+        .getElementById("textInput")
+        .addEventListener("input", function () {
+          let inputText = this.value.toUpperCase();
+          let formattedText = "";
+          for (let i = 0; i < inputText.length; i++) {
+            if (inputText[i].match(/[A-Z_]/)) {
+              formattedText += inputText[i];
+            }
+          }
+          this.value = formattedText.substr(0, 5);
+        });
+
+      // Function to handle Enter key press event
+      function enterKeyPressed(event) {
+        if (event.keyCode == 13) {
+          if (document.getElementById("textInput").value === answer) {
+            increaseFloorCount();
+            if (floorCount == 20) {
+              var floorCount = 1;
+            }
+            var textBox = document.getElementById("textInput");
+            textBox.style.color = "lightgreen";
+            document.getElementById("feedback").innerHTML =
+              '<i class="fas fa-check-circle success"></i> SUCCESS';
+            clearInterval(timerInterval); // Stop the timer
+            setTimeout(() => {
+              document.getElementById("feedback").innerHTML = "";
+              textBox.value = "";
+              textBox.style.color = "lightblue";
+              // Increase the total questions answered
+              totalQuestionsAnswered++;
+              // Increase the total correct answers
+              totalCorrectAnswers++;
+              points += 3; // Award points for correct answer
+              // Update the score display
+              document.getElementById("score").innerText =
+                totalCorrectAnswers + "/" + totalQuestionsAnswered;
+              document.getElementById("points").innerText = points;
+              // Move to the next question/verb
+              currentIndex = (currentIndex + 1) % verbList.length;
+              currentQuestion = verbList[currentIndex].question;
+              answer = verbList[currentIndex].verb.toUpperCase();
+              // Display the next question
+              if (currentIndex === 0) {
+                currentLevel++;
+              }
+              document.getElementById(
+                "bruh"
+              ).innerText = `Level ${currentLevel}: ${currentQuestion}`;
+              startTimer();
+            }, 500);
+          } else {
+            var textBox = document.getElementById("textInput");
+            textBox.style.color = "red";
+            document.getElementById("feedback").innerHTML =
+              '<i class="fas fa-times-circle failure"></i> WRONG';
+            clearInterval(timerInterval); // Stop the timer
+            setTimeout(() => {
+              document.getElementById("feedback").innerHTML = "";
+              textBox.value = "";
+              textBox.style.color = "lightblue";
+              // Increase the total questions answered
+              totalQuestionsAnswered++;
+              // Update the score display
+              document.getElementById("score").innerText =
+                totalCorrectAnswers + "/" + totalQuestionsAnswered;
+            }, 500);
+          }
+          return true;
+        } else {
+          document.getElementById("textInput").focus();
+        }
+      }
+
+      // Function to use a hint or item
+      function useHint(type) {
+        if (points <= 0) return; // Prevent using hint if no points
+        let hintMessage = "";
+        switch (type) {
+          case "firstLetter":
+            hintMessage = `Hint: The first letter is ${answer[0]}`;
+            points -= 1;
+            break;
+          case "definition":
+            hintMessage = `Hint: The definition is ${currentQuestion}`;
+            points -= 2;
+            break;
+          case "randomLetter":
+            let randomIndex = Math.floor(Math.random() * answer.length);
+            hintMessage = `Hint: A letter in the answer is ${answer[randomIndex]}`;
+            points -= 1;
+            break;
+          default:
+            break;
+        }
+        alert(hintMessage);
+        document.getElementById("points").innerText = points;
+      }
+
+      function useItem(type) {
+        if (points <= 0) return; // Prevent using item if no points
+        switch (type) {
+          case "skipQuestion":
+            if (points >= 3) {
+              points -= 3;
+              moveToNextQuestion();
+            } else {
+              alert("Not enough points to skip the question!");
+            }
+            break;
+          case "extraTime":
+            if (points >= 2) {
+              points -= 2;
+              timeLeft += 15; // Add extra 15 seconds
+              document.getElementById("timeLeft").innerText = timeLeft;
+            } else {
+              alert("Not enough points to add extra time!");
+            }
+            break;
+          case "revealAnswer":
+            if (points >= 5) {
+              points -= 5;
+              alert(`The correct answer is: ${answer}`);
+              moveToNextQuestion();
+            } else {
+              alert("Not enough points to reveal the answer!");
+            }
+            break;
+          default:
+            break;
+        }
+        document.getElementById("points").innerText = points;
+      }
+
+      function moveToNextQuestion() {
+        clearInterval(timerInterval); // Stop the timer
+        var textBox = document.getElementById("textInput");
+        textBox.value = "";
+        // Increase the total questions answered
+        totalQuestionsAnswered++;
+        // Update the score display
+        document.getElementById("score").innerText =
+          totalCorrectAnswers + "/" + totalQuestionsAnswered;
+        // Move to the next question/verb
+        currentIndex = (currentIndex + 1) % verbList.length;
+        currentQuestion = verbList[currentIndex].question;
+        answer = verbList[currentIndex].verb.toUpperCase();
+        // Display the next question
+        if (currentIndex === 0) {
+          currentLevel++;
+        }
+        document.getElementById(
+          "bruh"
+        ).innerText = `Level ${currentLevel}: ${currentQuestion}`;
+        startTimer();
+      }
+
+      // Timer functions
+      let timerInterval;
+      let timeLeft = 30;
+      let points = 0;
+
+      function startTimer() {
+        timeLeft = 30;
+        document.getElementById("timeLeft").innerText = timeLeft;
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById("timeLeft").innerText = timeLeft;
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            handleTimeOut();
+          }
+        }, 1000);
+      }
+
+      function handleTimeOut() {
+        var textBox = document.getElementById("textInput");
+        textBox.style.color = "red";
+        document.getElementById("feedback").innerHTML =
+          '<i class="fas fa-times-circle failure"></i> TIME UP';
+        setTimeout(() => {
+          document.getElementById("feedback").innerHTML = "";
+          textBox.value = "";
+          textBox.style.color = "lightblue";
+          // Increase the total questions answered
+          totalQuestionsAnswered++;
+          // Update the score display
+          document.getElementById("score").innerText =
+            totalCorrectAnswers + "/" + totalQuestionsAnswered;
+          // Move to the next question/verb
+          currentIndex = (currentIndex + 1) % verbList.length;
+          currentQuestion = verbList[currentIndex].question;
+          answer = verbList[currentIndex].verb.toUpperCase();
+          // Display the next question
+          if (currentIndex === 0) {
+            currentLevel++;
+          }
+          document.getElementById(
+            "bruh"
+          ).innerText = `Level ${currentLevel}: ${currentQuestion}`;
+          startTimer();
+        }, 1000);
+      }
+
+      // Function to start the loop
+      function startLoop() {
+        initializePuzzle();
+        infiniteLoop();
+      }
+
+      // Function to continuously focus on the text input field
+      let stopLoop = false;
+      let verbList = [];
+      let currentIndex = 0;
+      let totalQuestionsAnswered = 0;
+      let totalCorrectAnswers = 0;
+      let currentLevel = 1;
+      let answer = "";
+
+      function infiniteLoop() {
+        if (stopLoop) {
+          console.log("Loop stopped.");
+          return;
+        }
+        document.getElementById("textInput").focus();
+        setTimeout(infiniteLoop, 5);
+      }
+
+      startLoop();
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "t") {
+          // Toggle the dialog
+          var dialog = document.getElementById("dialog");
+          if (dialog.open) {
+            dialog.close();
+          } else {
+            dialog.showModal();
+          }
+        }
+      });
+
+      function updateTowerCount() {
+        document.getElementById("towercounter").textContent = towerCount;
+      }
+      updateTowerCount();
+      setInterval(updateTowerCount, 1000);
+
+      // Assuming towerCount, totalCorrectAnswers, totalQuestionsAnswered, and points are defined elsewhere in your code
+
+      // Function to display the "Time's Up!" message
+      function displayTimesUpMessage() {
+        document.body.innerHTML = `
+        <p>Time's Up! ${towerCount} towers cleared. ${totalCorrectAnswers}/${totalQuestionsAnswered} correct. ${points} points earned. Great work!</p>
+    `;
+      }
+
+      // Set a timeout to display the message after 5 minutes
+      setTimeout(clearScreen, 5 * 60 * 1000);
+      setTimeout(displayTimesUpMessage, 5 * 60 * 1000);
+
+      // Function to stop all running scripts (if needed)
+      function stopAllScripts() {
+        // You might need to implement this function based on your specific requirements
+      }
+
+      // Function to clear everything on the screen
+      function clearScreen() {
+        document.body.innerHTML = "";
+        // Optionally, you may also call stopAllScripts() here
+      }
+
+      // Call the clearScreen function after 5 minutes
+    </script>
+  </body>
+</html>
