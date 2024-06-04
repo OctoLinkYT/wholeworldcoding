@@ -210,6 +210,20 @@
       .rainbow-text {
         animation: rainbow 4s linear infinite;
       }
+.power-up-menu {
+    background-color: white; 
+    border: none;
+    color: black;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    font-family: "VCR OSD Mono";
+    src: url("https://static.tumblr.com/nlxfn1e/7Pwqv8mt8/vcr_osd_mono_1.001.ttf") format("truetype");
+}
     </style>
   </head>
   <body>
@@ -236,7 +250,7 @@
       </h1>
       <i>It's party time! Answer questions to move up higher levels on the
         tower. Every twenty floors, you clear a tower.</i> <br> <br>
-      <button onclick="showmenu()">Power-ups</button>
+      <button id="power-up-menu" onclick="showmenu()">Power-ups</button>
 
       <dialog id="dialog">
         <div class="hint-buttons">
