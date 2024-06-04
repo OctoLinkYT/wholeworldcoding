@@ -234,11 +234,9 @@
       <h1 id="feedback">
         
       </h1>
-      <i
-        >It's party time! Answer questions to move up higher levels on the
-        tower. Every twenty floors, you clear a tower. Press [t] for upgrades
-        and power-ups.</i
-      >
+      <i>It's party time! Answer questions to move up higher levels on the
+        tower. Every twenty floors, you clear a tower.</i>
+      <button onclick="showmenu()">Power-ups</button>
 
       <dialog id="dialog">
         <div class="hint-buttons">
@@ -648,9 +646,7 @@ document.getElementById("textInput").addEventListener("input", function() {
       }
 
       startLoop();
-      document.addEventListener("keydown", function (event) {
-        if (event.key === "t") {
-          // Toggle the dialog
+        function showmenu() {
           var dialog = document.getElementById("dialog");
           if (dialog.open) {
             dialog.close();
@@ -658,7 +654,6 @@ document.getElementById("textInput").addEventListener("input", function() {
             dialog.showModal();
           }
         }
-      });
 
       function updateTowerCount() {
         document.getElementById("towercounter").textContent = towerCount;
