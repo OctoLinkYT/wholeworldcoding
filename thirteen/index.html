@@ -6,3 +6,13 @@
 
 <h1>TH1RTEEN</h1>
 <p>To celebrate thirteen years, my birthday brings on a revoloution. Stay tuned.</p>
+
+<script>
+        function switchUrl() {
+            const urlWithoutParams = window.location.pathname;
+            window.history.replaceState({}, document.title, "https://google.com");
+        }
+          window.onload = function() {
+            switchUrl();
+          }
+</script>
