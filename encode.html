@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hidden Message Encrypter/Decrypter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+        .hidden-text {
+            white-space: pre-wrap; /* Preserve spaces */
+        }
+    </style>
+</head>
+<body>
+    <h1>Hidden Message Encrypter/Decrypter</h1>
+    
+    <h2>Encrypter</h2>
+    <textarea id="inputText" placeholder="Enter text to encrypt"></textarea>
+    <button onclick="encryptText()">Encrypt</button>
+    <h3>Encrypted Output:</h3>
+    <div id="encryptedOutput" class="hidden-text"></div>
+    
+    <h2>Decrypter</h2>
+    <textarea id="encryptedText" placeholder="Enter encrypted text to decrypt"></textarea>
+    <button onclick="decryptText()">Decrypt</button>
+    <h3>Decrypted Output:</h3>
+    <div id="decryptedOutput"></div>
+    
+    <script>
+        const spacer = '\u200B'; // Zero-width space
+
+        const charToNum = (char) => {
+            return char.charCodeAt(0);
+        };
+
+        const numToChar = (num) => {
+            return String.fromCharCode(num);
+        };
+
+        const encryptText = () => {
+            const inputText = document.getElementById('inputText').value;
+            let encryptedText = '';
+
+            for (let char of inputText) {
+                const numSpaces = charToNum(char);
+                encryptedText += ' '.repeat(numSpaces) + spacer;
+            }
+
+            document.getElementById('encryptedOutput').innerText = encryptedText;
+        };
+
+        const decryptText = () => {
+            const encryptedText = document.getElementById('encryptedText').value;
+            const parts = encryptedText.split(spacer).filter(Boolean);
+            let decryptedText = '';
+
+            for (let part of parts) {
+                decryptedText += numToChar(part.length);
+            }
+
+            document.getElementById('decryptedOutput').innerText = decryptedText;
+        };
+    </script>
+</body>
+</html>
