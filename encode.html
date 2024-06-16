@@ -8,12 +8,15 @@
             font-family: Arial, sans-serif;
             margin: 40px;
         }
-        textarea {
+        textarea, input[type="text"] {
             width: 100%;
             height: 100px;
         }
         .hidden-text {
             white-space: pre-wrap; /* Preserve spaces */
+        }
+        .copy-button {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -24,13 +27,15 @@
     <textarea id="inputText" placeholder="Enter text to encrypt"></textarea>
     <button onclick="encryptText()">Encrypt</button>
     <h3>Encrypted Output:</h3>
-    <div id="encryptedOutput" class="hidden-text"></div>
+    <textarea id="encryptedOutput" class="hidden-text"></textarea>
+    <button class="copy-button" onclick="copyToClipboard('encryptedOutput')">Copy Encrypted Text</button>
     
     <h2>Decrypter</h2>
     <textarea id="encryptedText" placeholder="Enter encrypted text to decrypt"></textarea>
     <button onclick="decryptText()">Decrypt</button>
     <h3>Decrypted Output:</h3>
-    <div id="decryptedOutput"></div>
+    <textarea id="decryptedOutput"></textarea>
+    <button class="copy-button" onclick="copyToClipboard('decryptedOutput')">Copy Decrypted Text</button>
     
     <script>
         const spacer = '\u200B'; // Zero-width space
@@ -52,7 +57,7 @@
                 encryptedText += ' '.repeat(numSpaces) + spacer;
             }
 
-            document.getElementById('encryptedOutput').innerText = encryptedText;
+            document.getElementById('encryptedOutput').value = encryptedText;
         };
 
         const decryptText = () => {
@@ -64,7 +69,13 @@
                 decryptedText += numToChar(part.length);
             }
 
-            document.getElementById('decryptedOutput').innerText = decryptedText;
+            document.getElementById('decryptedOutput').value = decryptedText;
+        };
+
+        const copyToClipboard = (elementId) => {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            document.execCommand('copy');
         };
     </script>
 </body>
