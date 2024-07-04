@@ -5,18 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supabase Auth</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #auth-container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        #profile h2 {
+            color: #333;
+        }
+        #profile button {
+            background-color: #dc3545;
+        }
+        #profile button:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
-    <h1>Supabase Authentication</h1>
-    <div id="login">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="signIn()">Sign In</button>
-        <button onclick="signUp()">Sign Up</button>
-    </div>
-    <div id="profile" style="display:none;">
-        <h2>Welcome, <span id="user-email"></span></h2>
-        <button onclick="signOut()">Sign Out</button>
+    <div id="auth-container">
+        <h1>Supabase Authentication</h1>
+        <div id="login">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="signIn()">Sign In</button>
+            <button onclick="signUp()">Sign Up</button>
+        </div>
+        <div id="profile" style="display:none;">
+            <h2>Welcome, <span id="user-email"></span></h2>
+            <button onclick="signOut()">Sign Out</button>
+        </div>
     </div>
     <script>
         // Initialize Supabase
