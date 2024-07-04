@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Auth</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <h1>Supabase Authentication</h1>
+    <div id="login">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="signIn()">Sign In</button>
+        <button onclick="signUp()">Sign Up</button>
+    </div>
+    <div id="profile" style="display:none;">
+        <h2>Welcome, <span id="user-email"></span></h2>
+        <button onclick="signOut()">Sign Out</button>
+    </div>
+    <script>
+        // Initialize Supabase
+        const supabaseUrl = 'https://kkwitvdnlspvoqbcahxz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtrd2l0dmRubHNwdm9xYmNhaHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjAwOTU1ODAsImV4cCI6MjAzNTY3MTU4MH0.47EDO0SRnvSLvCM_Ih8p5Q5TpQyeNoBykUqCVv1SyyM';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Get the redirection URL from query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get('redir') || 'protected.html';
+
+        // Check if user is logged in
+        async function checkUser() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('profile').style.display = 'block';
+                document.getElementById('user-email').textContent = user.email;
+                window.location.href = redirectTo;
+            } else {
+                document.getElementById('login').style.display = 'block';
+                document.getElementById('profile').style.display = 'none';
+            }
+        }
+
+        // Sign In function
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                console.error('Error signing in:', error);
+            } else {
+                checkUser();
+            }
+        }
+
+        // Sign Up function
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) {
+                console.error('Error signing up:', error);
+            } else {
+                checkUser();
+            }
+        }
+
+        // Sign Out function
+        async function signOut() {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('Error signing out:', error);
+            } else {
+                checkUser();
+            }
+        }
+
+        // Check user on page load
+        checkUser();
+    </script>
+</body>
+</html>
