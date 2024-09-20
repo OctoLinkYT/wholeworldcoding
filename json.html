@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON File Reader</title>
+    <title>Readable JSON Data</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #f9f9f9;
             margin: 0;
             padding: 20px;
         }
@@ -16,7 +16,7 @@
             color: #333;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -28,16 +28,26 @@
             margin: 20px auto;
             font-size: 16px;
         }
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background-color: #2b2b2b;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 8px;
-            max-height: 400px;
-            overflow-y: auto;
+        .json-data {
             margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
         footer {
             text-align: center;
@@ -50,12 +60,12 @@
 <body>
 
     <div class="container">
-        <h1>JSON File Reader</h1>
+        <h1>Readable JSON Data</h1>
         <input type="file" id="fileInput" accept=".json">
-        <pre id="output"></pre>
+        <div class="json-data" id="jsonData"></div>
     </div>
 
-    <footer>Designed by You | JSON Reader</footer>
+    <footer>Designed by You | Readable JSON</footer>
 
     <script>
         document.getElementById('fileInput').addEventListener('change', function(event) {
@@ -65,14 +75,45 @@
                 reader.onload = function(e) {
                     try {
                         const json = JSON.parse(e.target.result);
-                        document.getElementById('output').textContent = JSON.stringify(json, null, 4);
+                        const output = document.getElementById('jsonData');
+                        output.innerHTML = renderReadableData(json);
                     } catch (error) {
-                        document.getElementById('output').textContent = 'Invalid JSON file.';
+                        document.getElementById('jsonData').innerHTML = 'Invalid JSON file.';
                     }
                 };
                 reader.readAsText(file);
             }
         });
+
+        function renderReadableData(data) {
+            if (typeof data === 'object') {
+                if (Array.isArray(data)) {
+                    return renderArray(data);
+                } else {
+                    return renderObject(data);
+                }
+            } else {
+                return `<p>${data}</p>`;
+            }
+        }
+
+        function renderArray(arr) {
+            let html = '<table><tr><th>Index</th><th>Value</th></tr>';
+            arr.forEach((value, index) => {
+                html += `<tr><td>${index}</td><td>${renderReadableData(value)}</td></tr>`;
+            });
+            html += '</table>';
+            return html;
+        }
+
+        function renderObject(obj) {
+            let html = '<table><tr><th>Key</th><th>Value</th></tr>';
+            Object.keys(obj).forEach(key => {
+                html += `<tr><td>${key}</td><td>${renderReadableData(obj[key])}</td></tr>`;
+            });
+            html += '</table>';
+            return html;
+        }
     </script>
 
 </body>
