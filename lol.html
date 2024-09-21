@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown</title>
+    <style>
+        body {
+            font-family: monospace;
+            text-align: center;
+            background-color: #111;
+            color: #fff;
+        }
+        #countdown {
+            font-size: 48px;
+            margin-top: 20%;
+        }
+    </style>
+</head>
+<body>
+    <div id="countdown">Loading...</div>
+
+    <script>
+        function countdown() {
+            const targetDate = new Date("Sep 21, 2024 08:00:00").getTime();
+            const now = new Date().getTime();
+            const timeRemaining = targetDate - now;
+
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = hours + "h "
+                + minutes + "m " + seconds + "s ";
+
+            if (timeRemaining < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "Event Started!";
+            }
+        }
+
+        const x = setInterval(countdown, 1000);
+    </script>
+</body>
+</html>
