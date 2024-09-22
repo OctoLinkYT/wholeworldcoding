@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALMOST TIME.</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Full-screen layout */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        /* TV screen simulation */
+        .tv-screen {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, #330000, #000);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Static animation */
+        .static {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(255, 0, 0, 0.1) 0%,
+                rgba(255, 0, 0, 0.15) 2%,
+                rgba(255, 0, 0, 0.1) 4%
+            );
+            animation: static-effect 0.2s steps(10) infinite;
+            filter: blur(8px);
+            opacity: 0.5;
+        }
+
+        @keyframes static-effect {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(0, -100%); }
+        }
+
+        /* Countdown text */
+        .countdown {
+            font-family: 'VT323', monospace;
+            font-size: 2rem;
+            color: #ff1e1e;
+            text-shadow: 0 0 60px #ff1e1e, 0 0 100px #ff1e1e, 0 0 120px red;
+            animation: flicker 0.1s infinite alternate, move 3s infinite ease-in-out, glitch 1.5s infinite;
+            filter: blur(0.8px);
+            z-index: 1;
+            text-align: center;
+        }
+
+        /* Flicker animation */
+        @keyframes flicker {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        /* Countdown text movement */
+        @keyframes move {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Glitch effect */
+        @keyframes glitch {
+            0% { clip: rect(30px, 9999px, 100px, 0); transform: skew(0.5deg); }
+            10% { clip: rect(80px, 9999px, 140px, 0); transform: skew(-0.5deg); }
+            20% { clip: rect(120px, 9999px, 180px, 0); transform: skew(0.5deg); }
+            30% { clip: rect(60px, 9999px, 120px, 0); transform: skew(-0.5deg); }
+            40% { clip: rect(100px, 9999px, 160px, 0); transform: skew(0.5deg); }
+            50% { clip: rect(50px, 9999px, 110px, 0); transform: skew(-0.5deg); }
+            60% { clip: rect(90px, 9999px, 150px, 0); transform: skew(0.5deg); }
+            70% { clip: rect(70px, 9999px, 130px, 0); transform: skew(-0.5deg); }
+            80% { clip: rect(110px, 9999px, 170px, 0); transform: skew(0.5deg); }
+            90% { clip: rect(40px, 9999px, 100px, 0); transform: skew(-0.5deg); }
+            100% { clip: rect(60px, 9999px, 120px, 0); transform: skew(0.5deg); }
+        }
+
+        /* Extra overlay blur */
+        .tv-screen::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            opacity: 0.6;
+            filter: blur(15px);
+        }
+    </style>
+</head>
+<body>
+    <div class="tv-screen">
+        <div class="static"></div>
+        <div class="countdown" id="countdown">It is almost time.</div>
+    </div>
+
+    <script>
+        const countdownElement = document.getElementById('countdown');
+
+        // Set the target date and time
+        const targetDate = new Date("November 8, 2024 12:00:00").getTime();
+
+        function startCountdown() {
+            const now = new Date().getTime();
+            const timeRemaining = targetDate - now;
+
+            // Calculate days, hours, minutes, and seconds remaining
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+            // Display the countdown timer
+            countdownElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+            // Stop the countdown when the time is up
+            if (timeRemaining < 0) {
+                countdownElement.textContent = "00:00";
+            }
+        }
+
+        // Update the countdown every second
+        setInterval(startCountdown, 1000);
+    </script>
+</body>
+</html>
