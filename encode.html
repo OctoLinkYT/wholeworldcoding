@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>File Encrypter/Decrypter</title>
+    <title>dotblank.</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,11 +21,11 @@
     </style>
 </head>
 <body>
-    <h1>File Encrypter/Decrypter</h1>
+    <h1>dotblank.</h1>
     
     <h2>Encrypter</h2>
-    <input type="file" id="fileInput" />
-    <button onclick="encryptFile()">Encrypt</button>
+    <textarea id="inputText" placeholder="Enter text to encrypt"></textarea>
+    <button onclick="encryptText()">Encrypt</button>
     <h3>Encrypted Output:</h3>
     <textarea id="encryptedOutput" class="hidden-text"></textarea>
     <button class="copy-button" onclick="copyToClipboard('encryptedOutput')">Copy Encrypted Text</button>
@@ -76,49 +76,6 @@
             const textarea = document.getElementById(elementId);
             textarea.select();
             document.execCommand('copy');
-        };
-
-        const encryptFile = () => {
-            const fileInput = document.getElementById('fileInput');
-            if (fileInput.files.length === 0) return;
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                const fileContent = e.target.result;
-                const fileType = file.type;
-                let encodedText = `"${fileType}"\n`; // Include file type as the first line
-                
-                for (let char of fileContent) {
-                    const numSpaces = charToNum(char);
-                    encodedText += ' '.repeat(numSpaces) + spacer;
-                }
-
-                document.getElementById('encryptedOutput').value = encodedText;
-            };
-
-            reader.readAsText(file);
-        };
-
-        const decryptFile = () => {
-            const encryptedText = document.getElementById('encryptedText').value;
-            const parts = encryptedText.split(spacer).filter(Boolean);
-
-            // The first line should contain the file type
-            const fileType = parts.shift().slice(1, -1); // Remove quotes around file type
-            let decodedText = '';
-
-            for (let part of parts) {
-                decodedText += numToChar(part.length);
-            }
-
-            // Convert the decoded text back to a Blob and prompt the user to download it
-            const blob = new Blob([decodedText], { type: fileType });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'decodedFile'; // Can customize filename
-            link.click();
         };
     </script>
 </body>
