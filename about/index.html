@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://wholeworldcoding.com/favicon.png">
+    <title>About</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: monospace;
+            overflow-x: hidden;
+        }
+
+        .card {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 0;
+        }
+
+        h1 {
+            font-size: 5rem;
+            margin: 0;
+            padding-bottom: 20px;
+        }
+
+        .card-text {
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+
+        #site-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            background-color: #eee;
+        }
+
+        .site-preview {
+            margin: 10px;
+            text-align: center;
+            padding: 10px;
+            width: 150px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .site-preview img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .site-preview h3 {
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+
+        .site-preview a {
+            display: block;
+            color: #007BFF;
+            text-decoration: none;
+            padding: 10px 0;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .site-preview a:hover {
+            background-color: #e0e0e0;
+        }
+
+        .site-preview:hover {
+            transform: scale(1.05);
+        }
+
+.button-link { 
+    background-color: #1c87c9; 
+    border: none; 
+    color: white; 
+    padding: 15px 32px; 
+    text-align: center; 
+    text-decoration: none; 
+    display: inline-block; 
+    font-size: 20px; 
+    margin: 4px 2px; 
+    cursor: pointer; 
+    border-radius: 8px
+        }
+        
+#gradient {
+    border:1px solid black;
+    background: linear-gradient(130deg, black, darkred);
+    background-size: 200% 200%;
+
+    -webkit-animation: Animation 5s ease infinite;
+    -moz-animation: Animation 5s ease infinite;
+    animation: Animation 5s ease infinite;
+}
+
+#gradient2 {
+    border:1px solid black;
+    background: linear-gradient(130deg, white, lightgrey);
+    background-size: 200% 200%;
+    padding: 3%;
+    height: 80%;
+
+    -webkit-animation: Animation 5s ease infinite;
+    -moz-animation: Animation 5s ease infinite;
+    animation: Animation 5s ease infinite;
+}
+      
+
+@-webkit-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@-moz-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@keyframes Animation { 
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+
+#text
+{
+    color: linear-gradient(130deg, darkgrey, #414141);
+
+    -webkit-animation: Animation 5s ease infinite;
+    -moz-animation: Animation 5s ease infinite;
+    animation: Animation 5s ease infinite;
+}
+
+@-webkit-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@-moz-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@keyframes Animation { 
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+      
+
+      
+        .nav-bar {
+            background-color: rgba(89, 94, 255, 0.6); /* Increased transparency */
+            backdrop-filter: blur(10px); /* Stronger frosted glass effect */
+            border-radius: 20px;
+            padding: 8px 30px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: calc(100% - 60px);
+            max-width: 1000px;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Always on top */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-bar:hover {
+            transform: translate(-50%, -5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #D8BFD8;
+            margin-right: 30px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #D8BFD8;
+            transform: scale(1.1);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 4px 8px;
+            margin-left: 30px;
+            width: 180px;
+            transition: width 0.3s ease;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 4px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .search-bar input::placeholder {
+            color: #8A2BE2;
+            font-style: italic;
+        }
+
+        .nav-bar {
+            background-color: rgba(20, 20, 20, 0.3); /* Dark grey with slight transparency */
+            backdrop-filter: blur(10px); /* Stronger frosted glass effect */
+            border-radius: 20px;
+            padding: 8px 30px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: calc(100% - 60px);
+            max-width: 1000px;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Always on top */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-bar:hover {
+            transform: translate(-50%, -5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: lightgrey;
+            margin-right: 30px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: lightgrey;
+            transform: scale(1.1);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 4px 8px;
+            margin-left: 30px;
+            width: 180px;
+            transition: width 0.3s ease;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 4px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .search-bar input::placeholder {
+            color: #8A2BE2;
+            font-style: italic;
+        }
+
+      #ctwh1 {
+        color: #ffffff;
+      }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="logo" onclick="window.location.href='index.html'">[w]<span style="color: white;"></span> </div>
+        <div class="nav-links">
+            <a href="about">about</a>
+            <a href="projects">projects</a>
+            <a href="https://merch.wholeworldcoding.com">merch</a>
+        </div>
+    </div>
+    <div id="gradient" class="card">
+        
+        <h1 id="ctwh1" style="color: #ffffff;">About</h1>
+        <p style="color: #ffffff;" class="card-text">“It's not a bug, It's a feature.”</p>
+           <br><br>
+        
+        <br>
+        <p style="font-size:12px; color:#ffffff;" ><i>Scroll down for more...</i></p>
+    </div>
+    <div id="gradient2" class="card">
+        
+        <h1 style="color: black;">I believe in the power of imagination.</h1>
+        <p style="color: black;" class="card-text">I believe music makes you feel something magical. Technology connects us, and allows us to imagine and listen in new ways. It helps me tell my own stories. These factors combined lead to wholeworldcoding, the home for my projects and collaborations.</p>
+           <br><br>
+        
+        <br>
+    </div>
+  </body>
+
+</html>
