@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://wholeworldcoding.com/favicon.png">
+    <title>Projects</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: monospace;
+            overflow-x: hidden;
+        }
+
+        .card {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 0;
+        }
+
+        h1 {
+            font-size: 5rem;
+            margin: 0;
+            padding-bottom: 20px;
+        }
+
+        .card-text {
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+
+        #site-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            background-color: #eee;
+        }
+
+        .site-preview {
+            margin: 10px;
+            text-align: center;
+            padding: 10px;
+            width: 150px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .site-preview img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .site-preview h3 {
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+
+        .site-preview a {
+            display: block;
+            color: #007BFF;
+            text-decoration: none;
+            padding: 10px 0;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+
+        .site-preview a:hover {
+            background-color: #e0e0e0;
+        }
+
+        .site-preview:hover {
+            transform: scale(1.05);
+        }
+
+.button-link { 
+    background-color: #1c87c9; 
+    border: none; 
+    color: white; 
+    padding: 15px 32px; 
+    text-align: center; 
+    text-decoration: none; 
+    display: inline-block; 
+    font-size: 20px; 
+    margin: 4px 2px; 
+    cursor: pointer; 
+    border-radius: 8px
+        }
+        
+#gradient {
+    border:1px solid black;
+    background: linear-gradient(130deg, black, darkblue);
+    background-size: 200% 200%;
+    height: 50%;
+
+    -webkit-animation: Animation 5s ease infinite;
+    -moz-animation: Animation 5s ease infinite;
+    animation: Animation 5s ease infinite;
+}
+
+#gradient2 {
+    border:1px solid black;
+    background: linear-gradient(130deg, white, lightgrey);
+    background-size: 200% 200%;
+    padding: 3%;
+    height: 80%;
+
+    -webkit-animation: Animation 5s ease infinite;
+    -moz-animation: Animation 5s ease infinite;
+    animation: Animation 5s ease infinite;
+}
+      
+
+@-webkit-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@-moz-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@keyframes Animation { 
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+
+#text
+{
+    color: linear-gradient(130deg, darkgrey, #414141);
+
+    -webkit-animation: Animation 5s ease infinite;
+    -moz-animation: Animation 5s ease infinite;
+    animation: Animation 5s ease infinite;
+}
+
+@-webkit-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@-moz-keyframes Animation {
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+@keyframes Animation { 
+    0%{background-position:10% 0%}
+    50%{background-position:91% 100%}
+    100%{background-position:10% 0%}
+}
+      
+
+      
+        .nav-bar {
+            background-color: rgba(89, 94, 255, 0.6); /* Increased transparency */
+            backdrop-filter: blur(10px); /* Stronger frosted glass effect */
+            border-radius: 20px;
+            padding: 8px 30px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: calc(100% - 60px);
+            max-width: 1000px;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Always on top */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-bar:hover {
+            transform: translate(-50%, -5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #D8BFD8;
+            margin-right: 30px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #D8BFD8;
+            transform: scale(1.1);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 4px 8px;
+            margin-left: 30px;
+            width: 180px;
+            transition: width 0.3s ease;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 4px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .search-bar input::placeholder {
+            color: #8A2BE2;
+            font-style: italic;
+        }
+
+        .nav-bar {
+            background-color: rgba(20, 20, 20, 0.3); /* Dark grey with slight transparency */
+            backdrop-filter: blur(10px); /* Stronger frosted glass effect */
+            border-radius: 20px;
+            padding: 8px 30px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: calc(100% - 60px);
+            max-width: 1000px;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Always on top */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-bar:hover {
+            transform: translate(-50%, -5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: lightgrey;
+            margin-right: 30px;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 16px;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: lightgrey;
+            transform: scale(1.1);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 4px 8px;
+            margin-left: 30px;
+            width: 180px;
+            transition: width 0.3s ease;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 4px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .search-bar input::placeholder {
+            color: #8A2BE2;
+            font-style: italic;
+        }
+
+      #ctwh1 {
+        color: #ffffff;
+      }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="logo" onclick="window.location.href='index.html'">[w]<span style="color: white;"></span> </div>
+        <div class="nav-links">
+            <a href="about">about</a>
+            <a href="projects">projects</a>
+            <a href="https://merch.wholeworldcoding.com">merch</a>
+        </div>
+    </div>
+    <div id="gradient" class="card">
+           <br><br><br>
+        <h1 id="ctwh1" style="color: #ffffff;">Projects</h1>
+           <br><br><br>
+    </div>
+<input type="text" id="search-bar" placeholder="Search projects..." style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;">
+<div id="categories-container" style="margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap;"></div>
+<div id="site-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+<script>
+    // Define the list of projects
+    const projects = [
+        {
+            title: "Galenite",
+            description: "A games site that is rich in features and plays games you never thought could be played in pure HTML. Made possible by a collaboration with QuietKid. The successor to Wholeworldcoding Games.",
+            link: "https://galenite.wholeworldcoding.com",
+            image: "/assets/galenite.png",
+            categories: ["Programming", "Exploitation"]
+        },
+        {
+            title: "The Fallen",
+            description: "An experimental world comprised of games, animations, shows, and other forms of media. Known mainly for its associated ARG, KILLJOY.",
+            link: "/projects/project-b/index.html",
+            image: "/assets/thefallen.png",
+            categories: ["Storytelling", "Coding", "Music", "Film"]
+        },
+        {
+            title: "PlayMii",
+            description: "A daily livestream nearing 100 days of activity. The stream has created a tight community and introducted the concept of 'collaborative games' that show off an individual's creativity and skill, all running solely off of youtube.",
+            link: "/projects/project-b/index.html",
+            image: "/assets/playmii.png",
+            categories: ["Programming"]
+        },
+        {
+            title: "SPARK Media",
+            description: "The home for all my miscellaneous artistic projects. Mainly, music. SPARK has basically become my 'band' - co-owned by me and Buster.",
+            link: "/projects/project-b/index.html",
+            image: "/assets/spark.png",
+            categories: ["Music", "Film"]
+        },
+        {
+            title: "dotblank.",
+            description: "An interesting experiment in encoding that takes the input text and turns it into 'nothing' - uses patterns of Tag Space emojis and actual spaces. They look identical, making a hidden and invisible message.",
+            link: "/projects/project-b/index.html",
+            image: "/assets/spark.png",
+            categories: ["Programming"]
+        }
+    ];
+
+    const container = document.getElementById('site-container');
+    const searchBar = document.getElementById('search-bar');
+    const categoriesContainer = document.getElementById('categories-container');
+
+    function displayProjects(filteredProjects) {
+        container.innerHTML = '';
+        filteredProjects.forEach(project => {
+            const projectDiv = document.createElement('div');
+            projectDiv.style.display = 'flex';
+            projectDiv.style.alignItems = 'center';
+            projectDiv.style.gap = '15px';
+            projectDiv.style.border = '1px solid #ddd';
+            projectDiv.style.padding = '10px';
+            projectDiv.style.borderRadius = '5px';
+            
+            projectDiv.innerHTML = `
+                <img src="${project.image}" alt="${project.title} Preview" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                <div style="flex-grow: 1;">
+                    <h3 style="margin: 0;">${project.title}</h3>
+                    <p style="margin: 5px 0;">${project.description}</p>
+                    <p style="margin: 5px 0; font-weight: bold;">${project.categories.join(', ')}</p>
+                </div>
+                <a href="${project.link}" style="padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px;">Visit</a>
+            `;
+
+            container.appendChild(projectDiv);
+        });
+    }
+
+    function updateCategories() {
+        const categories = [...new Set(projects.flatMap(project => project.categories))];
+        categoriesContainer.innerHTML = categories.map(cat => `<button onclick="filterByCategory('${cat}')" style="padding: 5px 10px; border: 1px solid #007bff; background-color: #fff; color: #007bff; border-radius: 3px; cursor: pointer;">${cat}</button>`).join('');
+    }
+
+    function filterProjects() {
+        const searchText = searchBar.value.toLowerCase();
+        const filtered = projects.filter(project => project.title.toLowerCase().includes(searchText) || project.description.toLowerCase().includes(searchText));
+        displayProjects(filtered);
+    }
+
+    function filterByCategory(category) {
+        const filtered = projects.filter(project => project.categories.includes(category));
+        displayProjects(filtered);
+    }
+
+    searchBar.addEventListener('input', filterProjects);
+
+    // Initialize
+    displayProjects(projects);
+    updateCategories();
+</script>
+
+
+</html>
