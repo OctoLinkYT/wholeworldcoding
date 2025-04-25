@@ -83,7 +83,7 @@
     textarea {
       width: 100%;
       max-width: 700px;
-      height: 120px;
+      height: 160px;
       margin: 2em auto 0;
       display: block;
       font-size: 1em;
@@ -176,14 +176,24 @@
     }
 
     function copyAll() {
-      const exclude = document.getElementById('weekendToggle').checked;
       const today = new Date();
       const formattedToday = today.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
       let text = `🗓️ End of the Year Countdowns (as of ${formattedToday}):\n`;
+
+      // With weekends
+      text += `\n📆 Including weekends:\n`;
       for (const [key, event] of Object.entries(events)) {
-        const days = calculateDays(event.date, exclude);
+        const days = calculateDays(event.date, false);
         text += `${event.label}: ${days} day${days !== 1 ? 's' : ''}\n`;
       }
+
+      // Without weekends
+      text += `\n🚫 Excluding weekends:\n`;
+      for (const [key, event] of Object.entries(events)) {
+        const days = calculateDays(event.date, true);
+        text += `${event.label}: ${days} day${days !== 1 ? 's' : ''}\n`;
+      }
+
       document.getElementById('output').value = text.trim();
     }
 
