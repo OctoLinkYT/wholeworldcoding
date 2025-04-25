@@ -172,13 +172,14 @@
     function copyCountdown(id) {
       const event = events[id];
       const days = document.getElementById(id + 'Days').textContent;
-      document.getElementById('output').value = `${event.label}: ${days}`;
+      document.getElementById('output').value = `------------------------------\n${event.label}: ${days}\n------------------------------`;
     }
 
     function copyAll() {
       const today = new Date();
       const formattedToday = today.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-      let text = `🗓️ End of the Year Countdowns (as of ${formattedToday}):\n`;
+      let text = '------------------------------\n';
+      text += `🗓️ End of the Year Countdowns (as of ${formattedToday}):\n`;
 
       // With weekends
       text += `\n📆 Including weekends:\n`;
@@ -194,6 +195,7 @@
         text += `${event.label}: ${days} day${days !== 1 ? 's' : ''}\n`;
       }
 
+      text += '------------------------------';
       document.getElementById('output').value = text.trim();
     }
 
