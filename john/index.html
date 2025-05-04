@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>John Learns Things</title>
+  <style>
+    body {
+      background: #0d0d0d;
+      color: #f0f0f0;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      background: #1a1a1a;
+      display: block;
+      margin: 20px auto;
+      border: 4px solid #0ff;
+      box-shadow: 0 0 20px #0ff;
+    }
+    h1 {
+      color: #4af;
+    }
+    #goals {
+      max-width: 600px;
+      margin: 0 auto 1em;
+      background: #111;
+      padding: 10px;
+      border: 1px solid #333;
+      border-radius: 8px;
+    }
+    #goals ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    #goals li::before {
+      content: "🧠 ";
+      margin-right: 5px;
+    }
+    #controls {
+      margin: 20px auto;
+      max-width: 600px;
+      background: #111;
+      padding: 10px;
+      border: 1px solid #333;
+      border-radius: 8px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 Meet John, the Learning Cube</h1>
+  <p>He learns to move, jump, and collect things — and shows what he's thinking!</p>
+
+  <canvas id="game" width="600" height="300"></canvas>
+
+  <div id="goals">
+    <h3>🎯 Goal Timeline</h3>
+    <ul id="goalList">
+      <li>🍖 Find the food</li>
+    </ul>
+  </div>
+
+  <div id="controls">
+    <h3>⚙️ Controls</h3>
+    <label>Movement Speed: <span id="speedVal">2</span></label>
+    <input type="range" min="1" max="5" step="0.1" value="2" id="speedSlider" />
+    
+    <label>Jump Strength: <span id="jumpVal">10</span></label>
+    <input type="range" min="5" max="20" step="0.5" value="10" id="jumpSlider" />
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const floor = 280;
+    const gravity = 0.5;
+
+    const speedSlider = document.getElementById("speedSlider");
+    const jumpSlider = document.getElementById("jumpSlider");
+    const speedVal = document.getElementById("speedVal");
+    const jumpVal = document.getElementById("jumpVal");
+
+    speedSlider.oninput = () => speedVal.textContent = speedSlider.value;
+    jumpSlider.oninput = () => jumpVal.textContent = jumpSlider.value;
+
+    const goalList = document.getElementById("goalList");
+    function addGoal(goal) {
+      const li = document.createElement("li");
+      li.textContent = goal;
+      goalList.appendChild(li);
+    }
+
+    class Env {
+      constructor() { this.reset(); }
+
+      reset() {
+        this.x = 50; this.y = 250;
+        this.vx = 0; this.vy = 0;
+        this.done = false; this.onGround = true;
+        this.steps = 0;
+        this.thought = "";
+        this.food = { x: 400, y: 250, w: 15, h: 15, collected: false };
+        this.thoughtHistory = [];
+        return this.getState();
+      }
+
+      setThought(text) {
+        this.thought = text;
+      }
+
+      getState() {
+        return tf.tensor2d([[this.x / 600, this.y / 300, this.vx / 10, this.vy / 10, this.onGround ? 1 : 0]]);
+      }
+
+      step(action) {
+        const moveSpeed = parseFloat(speedSlider.value);
+        const jumpPower = parseFloat(jumpSlider.value);
+
+        if (action === 0) this.vx = -moveSpeed;
+        if (action === 1) this.vx = moveSpeed;
+        if (action === 2 && this.onGround) {
+          this.vy = -jumpPower;
+          this.onGround = false;
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += gravity;
+
+        if (this.y + 30 >= floor) {
+          this.y = floor - 30;
+          this.vy = 0;
+          this.onGround = true;
+        }
+
+        this.vx *= 0.9;
+
+        let reward = 0.01;
+
+        if (!this.food.collected &&
+            this.x + 30 > this.food.x &&
+            this.x < this.food.x + this.food.w &&
+            this.y + 30 > this.food.y) {
+          this.food.collected = true;
+          reward += 1.0;
+          addGoal("🚪 Reach the door (coming soon!)");
+        }
+
+        this.steps++;
+        if (this.steps > 3000) this.done = true;
+
+        return { state: this.getState(), reward, done: this.done };
+      }
+
+      render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Ground
+        ctx.fillStyle = "#333";
+        ctx.fillRect(0, floor, canvas.width, 20);
+
+        // Food
+        if (!this.food.collected) {
+          ctx.fillStyle = "gold";
+          ctx.fillRect(this.food.x, this.food.y, this.food.w, this.food.h);
+        }
+
+        // John
+        ctx.fillStyle = "#4af";
+        ctx.fillRect(this.x, this.y, 30, 30);
+
+        // Eyes
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(this.x + 5, this.y + 8, 5, 5);
+        ctx.fillRect(this.x + 20, this.y + 8, 5, 5);
+
+        // Name
+        ctx.fillStyle = "#fff";
+        ctx.font = "10px monospace";
+        ctx.fillText("John", this.x + 5, this.y - 5);
+
+        // Thought bubble smoothing
+        this.thoughtHistory.push({ x: this.x, y: this.y });
+        if (this.thoughtHistory.length > 5) this.thoughtHistory.shift();
+        const avg = this.thoughtHistory.reduce((a, b) => ({ x: a.x + b.x, y: a.y + b.y }));
+        const smoothX = avg.x / this.thoughtHistory.length;
+        const smoothY = avg.y / this.thoughtHistory.length;
+
+        if (this.thought) {
+          ctx.fillStyle = "#fff";
+          ctx.font = "10px monospace";
+          ctx.fillText(`Thinking: ${this.thought}`, smoothX - 10, smoothY - 20);
+        }
+
+        if (this.food.collected && this.steps < 30) {
+          ctx.fillStyle = "gold";
+          ctx.font = "12px monospace";
+          ctx.fillText("Yum! 😋", this.x + 5, this.y - 35);
+        }
+      }
+    }
+
+    class Agent {
+      constructor() {
+        this.model = this.createModel();
+        this.optimizer = tf.train.adam(0.01);
+      }
+
+      createModel() {
+        const model = tf.sequential();
+        model.add(tf.layers.dense({ units: 24, inputShape: [5], activation: 'relu' }));
+        model.add(tf.layers.dense({ units: 3, activation: 'softmax' }));
+        return model;
+      }
+
+      async train(episodes = 200) {
+        for (let e = 0; e < episodes; e++) {
+          const env = new Env();
+          let rewards = [], actions = [], states = [];
+          let state = env.reset();
+
+          while (!env.done) {
+            env.render();
+            const actionProbs = this.model.predict(state);
+            const probs = actionProbs.dataSync();
+            const action = tf.multinomial(actionProbs, 1).dataSync()[0];
+
+            let symbols = ["←", "→", "↑"];
+            let confidence = probs[action];
+            let emoji = "😕";
+            if (confidence > 0.33) emoji = "😐";
+            if (confidence > 0.66) emoji = "😁";
+            if (confidence > 0.9) emoji = "🤩";
+            env.setThought(`${emoji} ${symbols[action]} (${confidence.toFixed(2)})`);
+
+            const { state: nextState, reward, done } = env.step(action);
+
+            states.push(state); actions.push(action); rewards.push(reward);
+            state = nextState;
+
+            await tf.nextFrame();
+          }
+
+          const discounted = this.discountRewards(rewards);
+          const inputs = tf.concat(states);
+          const labels = tf.tensor1d(actions, 'int32');
+          const advantages = tf.tensor1d(discounted);
+
+          await this.optimizer.minimize(() => {
+            const logits = this.model.apply(inputs);
+            const labelsOneHot = tf.oneHot(labels, 3);
+            const logProbs = tf.log(tf.sum(tf.mul(logits, labelsOneHot), 1));
+            return tf.neg(tf.mean(tf.mul(logProbs, advantages)));
+          });
+
+          console.log(`Episode ${e + 1} complete. Reward: ${rewards.reduce((a,b)=>a+b,0).toFixed(2)}`);
+        }
+
+        alert("🎉 John is smarter now!");
+      }
+
+      discountRewards(rewards, gamma = 0.95) {
+        let discounted = [], r = 0;
+        for (let t = rewards.length - 1; t >= 0; t--) {
+          r = rewards[t] + gamma * r;
+          discounted[t] = r;
+        }
+        return discounted;
+      }
+    }
+
+    const agent = new Agent();
+    agent.train(150);
+  </script>
+</body>
+</html>
