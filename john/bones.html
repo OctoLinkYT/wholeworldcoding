@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>John Learns to Walk</title>
@@ -23,140 +24,194 @@
 <body>
   <h1>🦴 John the Skeleton Learns to Walk</h1>
   <canvas id="game" width="800" height="400"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
   <script>
     const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");const GROUND_Y = 350;
+    const ctx = canvas.getContext("2d");
+    const GROUND_Y = 350;
 
-class Env {
-  constructor() {
-    this.reset();
-  }
+    class Env {
+      constructor() {
+        this.reset();
+      }
 
-  reset() {
-    this.john = {
-      head: { x: 100, y: 200 },
-      torso: { x: 100, y: 250 },
-      leftLeg: { x: 90, y: 310 },
-      rightLeg: { x: 110, y: 310 },
-      velocityX: 0,
-      velocityY: 0,
-      reward: 0,
-      fallen: false,
-    };
-    this.steps = 0;
-    this.done = false;
-    this.treat = { x: 600, y: GROUND_Y - 20, w: 15, h: 15 };
-    return this.getState();
-  }
+      reset() {
+        this.john = {
+          head: { x: 100, y: 200 },
+          torso: { x: 100, y: 250 },
+          leftLeg: { x: 90, y: 310 },
+          rightLeg: { x: 110, y: 310 },
+          velocityX: 0,
+          velocityY: 0,
+          fallen: false,
+        };
+        this.steps = 0;
+        this.done = false;
+        this.treat = { x: 600, y: GROUND_Y - 20, w: 15, h: 15 };
+        return this.getState();
+      }
 
-  getState() {
-    const j = this.john;
-    return tf.tensor2d([[j.head.x / 800, j.torso.y / 400, j.velocityX / 10]]);
-  }
+      getState() {
+        const j = this.john;
+        return tf.tensor2d([[j.head.x / 800, j.torso.y / 400, j.velocityX / 10]]);
+      }
 
-  step(action) {
-    const j = this.john;
-    // Action: 0 = lean left, 1 = lean right, 2 = jump
-    if (action === 0) j.velocityX -= 1;
-    if (action === 1) j.velocityX += 1;
-    if (action === 2 && j.torso.y >= GROUND_Y - 100) j.velocityY = -5;
+      step(action) {
+        const j = this.john;
+        // Actions: 0 = lean left, 1 = lean right, 2 = jump
+        if (action === 0) j.velocityX -= 0.5;
+        if (action === 1) j.velocityX += 0.5;
+        if (action === 2 && j.torso.y >= GROUND_Y - 1) j.velocityY = -6;
 
-    j.head.x += j.velocityX * 0.3;
-    j.torso.x = j.head.x;
-    j.leftLeg.x = j.head.x - 10;
-    j.rightLeg.x = j.head.x + 10;
+        j.velocityY += 0.3; // Gravity
 
-    j.velocityY += 0.2;
-    j.torso.y += j.velocityY;
-    j.head.y = j.torso.y - 50;
-    j.leftLeg.y = j.torso.y + 50;
-    j.rightLeg.y = j.torso.y + 50;
+        j.head.x += j.velocityX;
+        j.torso.x = j.head.x;
+        j.torso.y += j.velocityY;
 
-    if (j.torso.y > GROUND_Y) {
-      j.torso.y = GROUND_Y;
-      j.velocityY = 0;
+        // Ground
+        if (j.torso.y > GROUND_Y) {
+          j.torso.y = GROUND_Y;
+          j.velocityY = 0;
+        }
+
+        j.head.y = j.torso.y - 50;
+        j.leftLeg.x = j.torso.x - 10;
+        j.rightLeg.x = j.torso.x + 10;
+        j.leftLeg.y = j.torso.y + 50;
+        j.rightLeg.y = j.torso.y + 50;
+
+        let reward = 0.01;
+
+        // Fall check
+        if (j.head.y > j.torso.y + 20 || Math.abs(j.velocityX) > 10) {
+          reward -= 1;
+          this.done = true;
+        }
+
+        // Treat check
+        if (
+          j.torso.x + 15 > this.treat.x &&
+          j.torso.x < this.treat.x + this.treat.w &&
+          j.torso.y + 10 > this.treat.y
+        ) {
+          reward += 2;
+          this.treat.x = Math.random() * 600 + 100;
+        }
+
+        this.steps++;
+        if (this.steps > 300) this.done = true;
+
+        return { state: this.getState(), reward, done: this.done };
+      }
+
+      render() {
+        const j = this.john;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Ground
+        ctx.fillStyle = "#333";
+        ctx.fillRect(0, GROUND_Y, canvas.width, 50);
+
+        // Treat
+        ctx.fillStyle = "gold";
+        ctx.fillRect(this.treat.x, this.treat.y, this.treat.w, this.treat.h);
+
+        // Skeleton
+        ctx.strokeStyle = "#4af";
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.moveTo(j.head.x, j.head.y);
+        ctx.lineTo(j.torso.x, j.torso.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(j.torso.x, j.torso.y);
+        ctx.lineTo(j.leftLeg.x, j.leftLeg.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(j.torso.x, j.torso.y);
+        ctx.lineTo(j.rightLeg.x, j.rightLeg.y);
+        ctx.stroke();
+
+        ctx.fillStyle = "#4af";
+        ctx.beginPath();
+        ctx.arc(j.head.x, j.head.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#fff";
+        ctx.font = "10px monospace";
+        ctx.fillText("John", j.head.x - 10, j.head.y - 12);
+      }
     }
 
-    let reward = -0.001;
+    class Agent {
+      constructor() {
+        this.model = this.createModel();
+        this.optimizer = tf.train.adam(0.01);
+      }
 
-    // Check fall over
-    if (j.head.y > j.torso.y + 10 || Math.abs(j.velocityX) > 5) {
-      j.fallen = true;
-      reward -= 1;
-      this.reset();
+      createModel() {
+        const model = tf.sequential();
+        model.add(tf.layers.dense({ units: 24, inputShape: [3], activation: "relu" }));
+        model.add(tf.layers.dense({ units: 3, activation: "softmax" }));
+        return model;
+      }
+
+      async train(episodes = 200) {
+        for (let e = 0; e < episodes; e++) {
+          const env = new Env();
+          let states = [], actions = [], rewards = [];
+          let state = env.reset();
+
+          while (!env.done) {
+            env.render();
+            const logits = this.model.predict(state);
+            const probs = logits.dataSync();
+            const action = tf.multinomial(logits, 1).dataSync()[0];
+
+            const { state: nextState, reward, done } = env.step(action);
+
+            states.push(state);
+            actions.push(action);
+            rewards.push(reward);
+            state = nextState;
+
+            await tf.nextFrame();
+          }
+
+          const discounted = this.discountRewards(rewards);
+          const inputs = tf.concat(states);
+          const labels = tf.tensor1d(actions, 'int32');
+          const advantages = tf.tensor1d(discounted);
+
+          await this.optimizer.minimize(() => {
+            const logits = this.model.apply(inputs);
+            const labelsOneHot = tf.oneHot(labels, 3);
+            const logProbs = tf.log(tf.sum(tf.mul(logits, labelsOneHot), 1));
+            return tf.neg(tf.mean(tf.mul(logProbs, advantages)));
+          });
+
+          console.log(`Episode ${e + 1}: Reward ${rewards.reduce((a, b) => a + b, 0).toFixed(2)}`);
+        }
+
+        alert("✅ John has learned something!");
+      }
+
+      discountRewards(rewards, gamma = 0.95) {
+        let discounted = [], r = 0;
+        for (let t = rewards.length - 1; t >= 0; t--) {
+          r = rewards[t] + gamma * r;
+          discounted[t] = r;
+        }
+        return discounted;
+      }
     }
 
-    // Check if reached treat
-    if (
-      j.torso.x + 10 > this.treat.x &&
-      j.torso.x < this.treat.x + this.treat.w &&
-      j.torso.y + 10 > this.treat.y
-    ) {
-      reward += 2;
-      this.treat.x = Math.random() * 600 + 100;
-    }
-
-    this.steps++;
-    if (this.steps > 1000) this.done = true;
-    return { state: this.getState(), reward, done: this.done };
-  }
-
-  render() {
-    const j = this.john;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Ground
-    ctx.fillStyle = "#333";
-    ctx.fillRect(0, GROUND_Y, canvas.width, 50);
-
-    // Treat
-    ctx.fillStyle = "gold";
-    ctx.fillRect(this.treat.x, this.treat.y, this.treat.w, this.treat.h);
-
-    // Skeleton
-    ctx.strokeStyle = "#4af";
-    ctx.lineWidth = 3;
-
-    ctx.beginPath();
-    ctx.moveTo(j.head.x, j.head.y);
-    ctx.lineTo(j.torso.x, j.torso.y);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(j.torso.x, j.torso.y);
-    ctx.lineTo(j.leftLeg.x, j.leftLeg.y);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(j.torso.x, j.torso.y);
-    ctx.lineTo(j.rightLeg.x, j.rightLeg.y);
-    ctx.stroke();
-
-    // Head
-    ctx.fillStyle = "#4af";
-    ctx.beginPath();
-    ctx.arc(j.head.x, j.head.y, 10, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#fff";
-    ctx.font = "10px monospace";
-    ctx.fillText("John", j.head.x - 10, j.head.y - 12);
-  }
-}
-
-const env = new Env();
-
-async function runRandom() {
-  while (true) {
-    const action = Math.floor(Math.random() * 3);
-    env.step(action);
-    env.render();
-    await tf.nextFrame();
-  }
-}
-
-runRandom();
-
+    const agent = new Agent();
+    agent.train(150);
   </script>
 </body>
 </html>
