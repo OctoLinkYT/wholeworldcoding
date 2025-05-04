@@ -2,65 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>John Learns Things</title>
+  <title>John Learns to Navigate Pipes</title>
   <style>
-    body {
-      background: #0d0d0d;
-      color: #f0f0f0;
-      font-family: 'Courier New', monospace;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    canvas {
-      background: #1a1a1a;
-      display: block;
-      margin: 20px auto;
-      border: 2px solid #333;
-      box-shadow: 0 0 20px #0ff;
-    }
-    h1 {
-      color: #4af;
-    }
-    #goals {
-      max-width: 600px;
-      margin: 0 auto 1em;
-      background: #111;
-      padding: 10px;
-      border: 1px solid #333;
-      border-radius: 8px;
-    }
-    #goals ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      text-align: left;
-    }
-    #goals li::before {
-      content: "🧠 ";
-      margin-right: 5px;
-    }
+    body { background: #111; color: #fff; font-family: monospace; text-align: center; margin: 0; }
+    canvas { background: #222; display: block; margin: 1em auto; border: 2px solid #555; }
+    #goals { max-width: 600px; margin: 1em auto; background: #000; padding: 10px; border: 1px solid #333; border-radius: 6px; }
   </style>
 </head>
 <body>
-  <h1>🤖 Meet John, the Learning Cube</h1>
-  <p>He learns to move, jump, collect food, and fight!</p>
+  <h1>John Jumps Like Flappy!</h1>
   <canvas id="game" width="600" height="300"></canvas>
-
   <div id="goals">
-    <h3>🎯 Goal Timeline</h3>
-    <ul id="goalList">
-      <li>🍖 Find the food on the platform</li>
-    </ul>
+    <h3>Goal Tracker</h3>
+    <ul id="goalList"><li>Pass through the gaps, avoid pipes, grab food!</li></ul>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
-    const floor = 300;
-    const gravity = 0.5;
-
     const goalList = document.getElementById("goalList");
     function addGoal(goal) {
       const li = document.createElement("li");
@@ -68,305 +27,173 @@
       goalList.appendChild(li);
     }
 
-    class Env {
+    class Pipe {
+      constructor(x) {
+        this.x = x;
+        this.width = 40;
+        this.gapY = 80 + Math.random() * 100;
+        this.gapHeight = 80;
+      }
+
+      update() {
+        this.x -= 2;
+      }
+
+      draw() {
+        ctx.fillStyle = "#4a4";
+        // top pipe
+        ctx.fillRect(this.x, 0, this.width, this.gapY);
+        // bottom pipe
+        ctx.fillRect(this.x, this.gapY + this.gapHeight, this.width, canvas.height - this.gapY - this.gapHeight);
+      }
+
+      collides(player) {
+        return (
+          player.x + player.w > this.x && player.x < this.x + this.width &&
+          (player.y < this.gapY || player.y + player.h > this.gapY + this.gapHeight)
+        );
+      }
+
+      passed(player) {
+        return this.x + this.width < player.x && !this.scored;
+      }
+    }
+
+    class Game {
       constructor() {
-        this.platforms = [];
         this.reset();
       }
 
       reset() {
         this.x = 50;
-        this.vx = 0;
+        this.y = 150;
         this.vy = 0;
-        this.width = 30;
-        this.height = 30;
+        this.gravity = 0.5;
+        this.jumpPower = -7;
+        this.w = 30;
+        this.h = 30;
         this.health = 100;
-        this.maxHealth = 100;
-        this.thought = "";
-        this.done = false;
-        this.steps = 0;
+        this.score = 0;
+
+        this.pipes = [];
+        this.pipeTimer = 0;
+
+        this.foods = [];
         this.foodCollected = 0;
-        this.projectiles = [];
-        this.enemies = [];
-
-        this.generatePlatforms();
-        this.setStartOnPlatform();
-
-        this.food = this.spawnFood();
-
-        return this.getState();
       }
 
-      setStartOnPlatform() {
-        const startPlat = this.platforms[Math.floor(Math.random() * this.platforms.length)];
-        this.x = startPlat.x + 10;
-        this.y = startPlat.y - this.height;
+      jump() {
+        this.vy = this.jumpPower;
       }
 
-      generatePlatforms() {
-        this.platforms = [];
-        for (let i = 0; i < 5; i++) {
-          let x = Math.random() * (canvas.width - 100);
-          let y = 100 + Math.random() * 150;
-          this.platforms.push({ x, y, w: 100, h: 10 });
-        }
-      }
-
-      spawnFood() {
-        const plat = this.platforms[Math.floor(Math.random() * this.platforms.length)];
-        return {
-          x: plat.x + 40,
-          y: plat.y - 15,
-          w: 15,
-          h: 15,
-          collected: false
-        };
-      }
-
-      setThought(text) {
-        this.thought = text;
-      }
-
-      getState() {
-        return tf.tensor2d([[this.x / 600, this.y / 300, this.vx / 10, this.vy / 10, this.onPlatform() ? 1 : 0]]);
-      }
-
-      onPlatform() {
-        for (let plat of this.platforms) {
-          if (
-            this.y + this.height >= plat.y &&
-            this.y + this.height <= plat.y + 10 &&
-            this.x + this.width > plat.x &&
-            this.x < plat.x + plat.w
-          ) {
-            return true;
-          }
-        }
-        return false;
-      }
-
-      step(action) {
-        if (action === 0) this.vx = -2.5;
-        if (action === 1) this.vx = 2.5;
-        if (action === 2 && this.onPlatform()) {
-          this.vy = -10;
-        }
-
-        this.x += this.vx;
+      update() {
+        this.vy += this.gravity;
         this.y += this.vy;
-        this.vy += gravity;
-        this.vx *= 0.9;
 
-        // Boundaries & punishment
-        if (this.x < 0 || this.x + this.width > canvas.width) {
-          this.health -= 10;
-          this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
+        // Add new pipes
+        this.pipeTimer++;
+        if (this.pipeTimer > 90) {
+          this.pipes.push(new Pipe(canvas.width));
+          this.pipeTimer = 0;
         }
 
-        // Platform collision
-        if (!this.onPlatform()) {
-          // Fall off screen = death
-          if (this.y > canvas.height) {
-            this.health = 0;
-          }
-        } else {
-          this.vy = 0;
-          this.y = this.platforms.find(p => this.y + this.height >= p.y && this.x + this.width > p.x && this.x < p.x + p.w).y - this.height;
-        }
-
-        // Collect food
-        let reward = 0.01;
-        if (
-          !this.food.collected &&
-          this.x + this.width > this.food.x &&
-          this.x < this.food.x + this.food.w &&
-          this.y + this.height > this.food.y
-        ) {
-          this.food.collected = true;
-          this.foodCollected++;
-          addGoal("⚔️ Shoot enemies!");
-          reward += 1.0;
-
-          // Spawn an enemy
-          const ex = Math.random() < 0.5 ? 0 : canvas.width - 20;
-          this.enemies.push({ x: ex, y: 250, w: 20, h: 20, vx: ex === 0 ? 1 : -1 });
-        }
-
-        // Projectiles
-        if (this.foodCollected > 0 && this.steps % 60 === 0) {
-          this.projectiles.push({ x: this.x + this.width / 2, y: this.y + 10, vx: 4, w: 5, h: 5 });
-          this.foodCollected--;
-        }
-
-        for (let p of this.projectiles) p.x += p.vx;
-        this.projectiles = this.projectiles.filter(p => p.x < canvas.width);
-
-        // Enemies move and check for collision
-        for (let enemy of this.enemies) {
-          enemy.x += enemy.vx;
-
-          for (let p of this.projectiles) {
-            if (
-              p.x < enemy.x + enemy.w &&
-              p.x + p.w > enemy.x &&
-              p.y < enemy.y + enemy.h &&
-              p.y + p.h > enemy.y
-            ) {
-              enemy.hit = true;
-            }
-          }
-
-          if (
-            this.x < enemy.x + enemy.w &&
-            this.x + this.width > enemy.x &&
-            this.y < enemy.y + enemy.h &&
-            this.y + this.height > enemy.y
-          ) {
+        // Update pipes
+        for (let pipe of this.pipes) {
+          pipe.update();
+          if (pipe.collides(this)) {
             this.health -= 20;
-            enemy.hit = true;
+          }
+          if (pipe.passed(this)) {
+            this.score++;
+            pipe.scored = true;
+            this.foods.push({ x: pipe.x + 20, y: pipe.gapY + pipe.gapHeight / 2 - 7, collected: false });
+            addGoal("Grabbed a snack after pipe!");
           }
         }
 
-        this.enemies = this.enemies.filter(e => !e.hit);
+        // Remove old pipes
+        this.pipes = this.pipes.filter(p => p.x + p.width > 0);
 
-        this.steps++;
-        if (this.health <= 0) {
+        // Food collection
+        for (let food of this.foods) {
+          if (!food.collected &&
+              this.x < food.x + 10 &&
+              this.x + this.w > food.x &&
+              this.y < food.y + 10 &&
+              this.y + this.h > food.y) {
+            food.collected = true;
+            this.foodCollected++;
+            addGoal("Yum! Food collected.");
+          }
+        }
+
+        // Dying
+        if (this.y > canvas.height || this.y < 0 || this.health <= 0) {
           this.explode();
-          return { state: this.reset(), reward: -1, done: false };
+          this.reset();
         }
-
-        if (this.steps > 1500) {
-          this.done = true;
-        }
-
-        return { state: this.getState(), reward, done: this.done };
       }
 
       explode() {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 20; i++) {
           ctx.fillStyle = "red";
-          ctx.fillRect(this.x + Math.random() * 20 - 10, this.y + Math.random() * 20 - 10, 4, 4);
+          ctx.fillRect(this.x + Math.random() * 30 - 15, this.y + Math.random() * 30 - 15, 4, 4);
         }
       }
 
-      render() {
+      draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Platforms
-        for (let plat of this.platforms) {
-          ctx.fillStyle = "#444";
-          ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+        // Pipes
+        for (let pipe of this.pipes) {
+          pipe.draw();
         }
 
-        // Food
-        if (!this.food.collected) {
-          ctx.fillStyle = "gold";
-          ctx.fillRect(this.food.x, this.food.y, this.food.w, this.food.h);
-        }
-
-        // Enemies
-        for (let e of this.enemies) {
-          ctx.fillStyle = "red";
-          ctx.fillRect(e.x, e.y, e.w, e.h);
-        }
-
-        // Projectiles
-        for (let p of this.projectiles) {
-          ctx.fillStyle = "#0ff";
-          ctx.fillRect(p.x, p.y, p.w, p.h);
+        // Foods
+        for (let food of this.foods) {
+          if (!food.collected) {
+            ctx.fillStyle = "gold";
+            ctx.fillRect(food.x, food.y, 10, 10);
+          }
         }
 
         // John
         ctx.fillStyle = "#4af";
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+
+        // Eyes
         ctx.fillStyle = "#fff";
         ctx.fillRect(this.x + 5, this.y + 8, 5, 5);
         ctx.fillRect(this.x + 20, this.y + 8, 5, 5);
-        ctx.fillText("John", this.x + 5, this.y - 5);
-
-        // Thought bubble
-        if (this.thought) {
-          ctx.fillStyle = "#fff";
-          ctx.font = "10px monospace";
-          ctx.fillText(`Thinking: ${this.thought}`, this.x - 10, this.y - 20);
-        }
 
         // Health bar
         ctx.fillStyle = "#fff";
         ctx.fillText("Health", 10, 10);
         ctx.fillStyle = "green";
-        ctx.fillRect(60, 2, (this.health / this.maxHealth) * 100, 8);
+        ctx.fillRect(60, 2, (this.health / 100) * 100, 8);
         ctx.strokeStyle = "#fff";
         ctx.strokeRect(60, 2, 100, 8);
+
+        // Score
+        ctx.fillText("Score: " + this.score, canvas.width - 80, 10);
       }
     }
 
-    class Agent {
-      constructor() {
-        this.model = this.createModel();
-        this.optimizer = tf.train.adam(0.01);
-      }
+    const game = new Game();
 
-      createModel() {
-        const model = tf.sequential();
-        model.add(tf.layers.dense({ units: 24, inputShape: [5], activation: 'relu' }));
-        model.add(tf.layers.dense({ units: 3, activation: 'softmax' }));
-        return model;
-      }
-
-      async train(episodes = 100) {
-        for (let e = 0; e < episodes; e++) {
-          const env = new Env();
-          let rewards = [], actions = [], states = [];
-          let state = env.reset();
-
-          while (!env.done) {
-            env.render();
-            const actionProbs = this.model.predict(state);
-            const probs = actionProbs.dataSync();
-            const action = tf.multinomial(actionProbs, 1).dataSync()[0];
-
-            const emoji = probs[action] > 0.9 ? "🤩" : probs[action] > 0.66 ? "😁" : probs[action] > 0.33 ? "😐" : "😕";
-            env.setThought(`${emoji} ${["←", "→", "↑"][action]} (${probs[action].toFixed(2)})`);
-
-            const { state: nextState, reward, done } = env.step(action);
-
-            states.push(state); actions.push(action); rewards.push(reward);
-            state = nextState;
-
-            await tf.nextFrame();
-          }
-
-          const discounted = this.discountRewards(rewards);
-          const inputs = tf.concat(states);
-          const labels = tf.tensor1d(actions, 'int32');
-          const advantages = tf.tensor1d(discounted);
-
-          await this.optimizer.minimize(() => {
-            const logits = this.model.apply(inputs);
-            const labelsOneHot = tf.oneHot(labels, 3);
-            const logProbs = tf.log(tf.sum(tf.mul(logits, labelsOneHot), 1));
-            return tf.neg(tf.mean(tf.mul(logProbs, advantages)));
-          });
-
-          console.log(`Episode ${e + 1} complete. Total reward: ${rewards.reduce((a, b) => a + b, 0).toFixed(2)}`);
-        }
-
-        alert("🎉 John got tougher and smarter!");
-      }
-
-      discountRewards(rewards, gamma = 0.95) {
-        let discounted = [], r = 0;
-        for (let t = rewards.length - 1; t >= 0; t--) {
-          r = rewards[t] + gamma * r;
-          discounted[t] = r;
-        }
-        return discounted;
-      }
+    function loop() {
+      game.update();
+      game.draw();
+      requestAnimationFrame(loop);
     }
 
-    const agent = new Agent();
-    agent.train(100);
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        game.jump();
+      }
+    });
+
+    loop();
   </script>
 </body>
 </html>
