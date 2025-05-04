@@ -40,29 +40,13 @@
       content: "🧠 ";
       margin-right: 5px;
     }
-    .controls {
-      margin: 10px auto;
-      max-width: 400px;
-    }
-    .controls label {
-      display: block;
-      margin-top: 10px;
-    }
   </style>
 </head>
 <body>
   <h1>🤖 Meet John, the Learning Cube</h1>
-  <p>He learns to move, jump, and collect things — and shows what he's thinking!</p>
+  <p>He learns to move, jump, collect food, and fight enemies!</p>
 
   <canvas id="game" width="600" height="300"></canvas>
-
-  <div class="controls">
-    <label>
-      Move Speed:
-      <input type="range" id="speedSlider" min="1" max="10" value="2" step="0.5">
-      <span id="speedVal">2</span>
-    </label>
-  </div>
 
   <div id="goals">
     <h3>🎯 Goal Timeline</h3>
@@ -77,12 +61,6 @@
     const ctx = canvas.getContext("2d");
     const floor = 280;
     const gravity = 0.5;
-    const speedSlider = document.getElementById("speedSlider");
-    const speedVal = document.getElementById("speedVal");
-
-    speedSlider.oninput = () => {
-      speedVal.textContent = speedSlider.value;
-    };
 
     const goalList = document.getElementById("goalList");
     function addGoal(goal) {
@@ -91,65 +69,66 @@
       goalList.appendChild(li);
     }
 
+    function randomX() {
+      return 100 + Math.random() * 400;
+    }
+
     class Env {
       constructor() {
         this.reset();
-        this.prevThought = "";
-        this.smoothedThought = "";
       }
 
       reset() {
         this.x = 50; this.y = 250;
         this.vx = 0; this.vy = 0;
+        this.ax = 0;
+        this.ammo = 0;
+        this.projectiles = [];
+        this.enemies = [];
         this.done = false; this.onGround = true;
         this.steps = 0;
         this.thought = "";
-        this.prevThought = "";
-        this.smoothedThought = "";
-        this.food = { x: 400, y: 250, w: 15, h: 15, collected: false };
+        this.food = this.spawnFood();
         return this.getState();
       }
 
+      spawnFood() {
+        return { x: randomX(), y: 250, w: 15, h: 15, collected: false };
+      }
+
+      spawnEnemy() {
+        const ex = Math.random() < 0.5 ? 550 : 100;
+        this.enemies.push({ x: ex, y: 250, w: 30, h: 30 });
+      }
+
       setThought(text) {
-        // Simple smoothing: delay updating text unless different for a while
-        if (text !== this.prevThought) {
-          this.prevThought = text;
-          this.thoughtTimer = 5;
-        }
-        if (this.thoughtTimer > 0) {
-          this.thoughtTimer--;
-        } else {
-          this.smoothedThought = this.prevThought;
-        }
+        this.thought = text;
       }
 
       getState() {
         return tf.tensor2d([[this.x / 600, this.y / 300, this.vx / 10, this.vy / 10, this.onGround ? 1 : 0]]);
       }
 
+      fireProjectile() {
+        if (this.ammo > 0) {
+          this.projectiles.push({ x: this.x + 15, y: this.y + 15, vx: 4 });
+          this.ammo--;
+        }
+      }
+
       step(action) {
-        const moveSpeed = parseFloat(speedSlider.value);
-        if (action === 0) this.vx = -moveSpeed;
-        if (action === 1) this.vx = moveSpeed;
+        this.ax = 0;
+        if (action === 0) this.ax = -0.4;
+        if (action === 1) this.ax = 0.4;
         if (action === 2 && this.onGround) {
           this.vy = -10;
           this.onGround = false;
         }
+        if (action === 3) this.fireProjectile();
 
+        this.vx += this.ax;
+        this.vx *= 0.9;
         this.x += this.vx;
-        let hitWall = false;
-
-        if (this.x < 0) {
-          this.x = 0;
-          this.vx = 0;
-          hitWall = true;
-        }
-        if (this.x + 30 > canvas.width) {
-          this.x = canvas.width - 30;
-          this.vx = 0;
-          hitWall = true;
-        }
-
         this.y += this.vy;
         this.vy += gravity;
 
@@ -159,26 +138,40 @@
           this.onGround = true;
         }
 
-        this.vx *= 0.9;
+        if (this.x < 0 || this.x + 30 > canvas.width) {
+          this.x = Math.max(0, Math.min(canvas.width - 30, this.x));
+          this.vx = 0;
+        }
 
         let reward = 0.01;
-
-        if (hitWall) {
-          reward -= 0.2;
-          this.setThought("Ouch! 🧱");
-        }
 
         if (!this.food.collected &&
             this.x + 30 > this.food.x &&
             this.x < this.food.x + this.food.w &&
             this.y + 30 > this.food.y) {
           this.food.collected = true;
+          this.ammo = 3;
           reward += 1.0;
-          addGoal("🚪 Reach the door (coming soon!)");
+          addGoal("⚔️ Use ammo to defeat the enemy!");
+          this.spawnEnemy();
+          this.food = this.spawnFood();
         }
 
+        this.projectiles.forEach(p => p.x += p.vx);
+        this.projectiles = this.projectiles.filter(p => p.x < canvas.width);
+
+        this.enemies.forEach(e => {
+          for (let p of this.projectiles) {
+            if (p.x > e.x && p.x < e.x + e.w && p.y > e.y && p.y < e.y + e.h) {
+              e.dead = true;
+              reward += 0.5;
+            }
+          }
+        });
+        this.enemies = this.enemies.filter(e => !e.dead);
+
         this.steps++;
-        if (this.steps > 2000) this.done = true;
+        if (this.steps > 1500) this.done = true;
 
         return { state: this.getState(), reward, done: this.done };
       }
@@ -186,7 +179,6 @@
       render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Ground
         ctx.fillStyle = "#333";
         ctx.fillRect(0, floor, canvas.width, 20);
 
@@ -196,28 +188,33 @@
           ctx.fillRect(this.food.x, this.food.y, this.food.w, this.food.h);
         }
 
+        // Projectiles
+        ctx.fillStyle = "#0ff";
+        this.projectiles.forEach(p => {
+          ctx.fillRect(p.x, p.y, 5, 5);
+        });
+
+        // Enemies
+        ctx.fillStyle = "#f44";
+        this.enemies.forEach(e => {
+          ctx.fillRect(e.x, e.y, e.w, e.h);
+        });
+
         // John
         ctx.fillStyle = "#4af";
         ctx.fillRect(this.x, this.y, 30, 30);
-
-        // Eyes
         ctx.fillStyle = "#fff";
         ctx.fillRect(this.x + 5, this.y + 8, 5, 5);
         ctx.fillRect(this.x + 20, this.y + 8, 5, 5);
-
-        // Name
-        ctx.fillStyle = "#fff";
         ctx.font = "10px monospace";
         ctx.fillText("John", this.x + 5, this.y - 5);
 
-        // Thought bubble
-        if (this.smoothedThought) {
+        if (this.thought) {
           ctx.fillStyle = "#fff";
           ctx.font = "10px monospace";
-          ctx.fillText(`Thinking: ${this.smoothedThought}`, this.x - 10, this.y - 20);
+          ctx.fillText(`Thinking: ${this.thought}`, this.x - 10, this.y - 20);
         }
 
-        // Reward speech
         if (this.food.collected && this.steps < 30) {
           ctx.fillStyle = "gold";
           ctx.font = "12px monospace";
@@ -235,7 +232,7 @@
       createModel() {
         const model = tf.sequential();
         model.add(tf.layers.dense({ units: 24, inputShape: [5], activation: 'relu' }));
-        model.add(tf.layers.dense({ units: 3, activation: 'softmax' }));
+        model.add(tf.layers.dense({ units: 4, activation: 'softmax' })); // 4 actions now
         return model;
       }
 
@@ -251,7 +248,7 @@
             const probs = actionProbs.dataSync();
             const action = tf.multinomial(actionProbs, 1).dataSync()[0];
 
-            let symbols = ["←", "→", "↑"];
+            const symbols = ["←", "→", "↑", "🔫"];
             let confidence = probs[action];
             let emoji = "😕";
             if (confidence > 0.33) emoji = "😐";
@@ -274,15 +271,15 @@
 
           await this.optimizer.minimize(() => {
             const logits = this.model.apply(inputs);
-            const labelsOneHot = tf.oneHot(labels, 3);
+            const labelsOneHot = tf.oneHot(labels, 4);
             const logProbs = tf.log(tf.sum(tf.mul(logits, labelsOneHot), 1));
             return tf.neg(tf.mean(tf.mul(logProbs, advantages)));
           });
 
-          console.log(`Episode ${e + 1} complete. Reward: ${rewards.reduce((a,b)=>a+b,0).toFixed(2)}`);
+          console.log(`Episode ${e + 1} complete. Total reward: ${rewards.reduce((a, b) => a + b, 0).toFixed(2)}`);
         }
 
-        alert("🎉 John is smarter now!");
+        alert("🎉 John has evolved!");
       }
 
       discountRewards(rewards, gamma = 0.95) {
