@@ -2,33 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>John Learns to Walk</title>
+  <title>John Jumps to Win</title>
   <style>
     body {
       background: #0d0d0d;
       color: #f0f0f0;
       font-family: 'Courier New', monospace;
-      margin: 0;
-      padding: 0;
       text-align: center;
     }
     canvas {
-      background: #1a1a1a;
+      background: #111;
       display: block;
       margin: 20px auto;
-      border: 2px solid #333;
-      box-shadow: 0 0 20px #0ff;
+      border: 3px solid #00ffff;
     }
   </style>
 </head>
 <body>
-  <h1>🦴 John the Skeleton Learns to Walk</h1>
+  <h1>🦴 John Learns to Jump Over Platforms</h1>
   <canvas id="game" width="800" height="400"></canvas>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
+
     const GROUND_Y = 350;
+    const PLATFORM = { x: 300, y: 300, w: 200, h: 10 };
+    const LEFT_BOUND = 0;
+    const RIGHT_BOUND = 800;
 
     class Env {
       constructor() {
@@ -43,11 +44,10 @@
           rightLeg: { x: 110, y: 310 },
           velocityX: 0,
           velocityY: 0,
-          fallen: false,
         };
+        this.treat = { x: 650, y: PLATFORM.y - 15, w: 15, h: 15 };
         this.steps = 0;
         this.done = false;
-        this.treat = { x: 600, y: GROUND_Y - 20, w: 15, h: 15 };
         return this.getState();
       }
 
@@ -58,20 +58,23 @@
 
       step(action) {
         const j = this.john;
-        // Actions: 0 = lean left, 1 = lean right, 2 = jump
         if (action === 0) j.velocityX -= 0.5;
         if (action === 1) j.velocityX += 0.5;
-        if (action === 2 && j.torso.y >= GROUND_Y - 1) j.velocityY = -6;
+        if (action === 2 && this.onGround()) j.velocityY = -6;
 
-        j.velocityY += 0.3; // Gravity
+        j.velocityY += 0.3;
 
         j.head.x += j.velocityX;
         j.torso.x = j.head.x;
         j.torso.y += j.velocityY;
 
-        // Ground
-        if (j.torso.y > GROUND_Y) {
+        if (this.onGround()) {
           j.torso.y = GROUND_Y;
+          j.velocityY = 0;
+        }
+
+        if (this.onPlatform()) {
+          j.torso.y = PLATFORM.y;
           j.velocityY = 0;
         }
 
@@ -81,28 +84,47 @@
         j.leftLeg.y = j.torso.y + 50;
         j.rightLeg.y = j.torso.y + 50;
 
+        // Bounds
+        if (j.torso.x < LEFT_BOUND) {
+          j.torso.x = LEFT_BOUND;
+          j.velocityX = 0;
+        } else if (j.torso.x > RIGHT_BOUND) {
+          j.torso.x = RIGHT_BOUND;
+          j.velocityX = 0;
+        }
+
         let reward = 0.01;
 
-        // Fall check
-        if (j.head.y > j.torso.y + 20 || Math.abs(j.velocityX) > 10) {
+        if (j.torso.y > canvas.height) {
           reward -= 1;
           this.done = true;
         }
 
-        // Treat check
         if (
           j.torso.x + 15 > this.treat.x &&
           j.torso.x < this.treat.x + this.treat.w &&
           j.torso.y + 10 > this.treat.y
         ) {
           reward += 2;
-          this.treat.x = Math.random() * 600 + 100;
+          this.treat.x = Math.random() * 100 + 650;
         }
 
         this.steps++;
-        if (this.steps > 300) this.done = true;
+        if (this.steps > 400) this.done = true;
 
         return { state: this.getState(), reward, done: this.done };
+      }
+
+      onGround() {
+        const j = this.john;
+        return j.torso.y >= GROUND_Y && j.torso.x < PLATFORM.x || j.torso.x > PLATFORM.x + PLATFORM.w;
+      }
+
+      onPlatform() {
+        const j = this.john;
+        const onTop = j.torso.y >= PLATFORM.y - 5 && j.torso.y <= PLATFORM.y + 10;
+        const inX = j.torso.x > PLATFORM.x && j.torso.x < PLATFORM.x + PLATFORM.w;
+        return onTop && inX;
       }
 
       render() {
@@ -112,6 +134,10 @@
         // Ground
         ctx.fillStyle = "#333";
         ctx.fillRect(0, GROUND_Y, canvas.width, 50);
+
+        // Platform
+        ctx.fillStyle = "#444";
+        ctx.fillRect(PLATFORM.x, PLATFORM.y, PLATFORM.w, PLATFORM.h);
 
         // Treat
         ctx.fillStyle = "gold";
@@ -160,7 +186,7 @@
         return model;
       }
 
-      async train(episodes = 200) {
+      async train(episodes = 150) {
         for (let e = 0; e < episodes; e++) {
           const env = new Env();
           let states = [], actions = [], rewards = [];
@@ -197,7 +223,7 @@
           console.log(`Episode ${e + 1}: Reward ${rewards.reduce((a, b) => a + b, 0).toFixed(2)}`);
         }
 
-        alert("✅ John has learned something!");
+        alert("✅ John trained to jump over platforms!");
       }
 
       discountRewards(rewards, gamma = 0.95) {
@@ -211,7 +237,7 @@
     }
 
     const agent = new Agent();
-    agent.train(150);
+    agent.train();
   </script>
 </body>
 </html>
