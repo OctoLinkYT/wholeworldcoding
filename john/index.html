@@ -44,14 +44,13 @@
 </head>
 <body>
   <h1>🤖 Meet John, the Learning Cube</h1>
-  <p>He learns to move, jump, collect food, and fight enemies!</p>
-
+  <p>He learns to move, jump, collect food, and fight!</p>
   <canvas id="game" width="600" height="300"></canvas>
 
   <div id="goals">
     <h3>🎯 Goal Timeline</h3>
     <ul id="goalList">
-      <li>🍖 Find the food</li>
+      <li>🍖 Find the food on the platform</li>
     </ul>
   </div>
 
@@ -59,7 +58,7 @@
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
-    const floor = 280;
+    const floor = 300;
     const gravity = 0.5;
 
     const goalList = document.getElementById("goalList");
@@ -69,36 +68,59 @@
       goalList.appendChild(li);
     }
 
-    function randomX() {
-      return 100 + Math.random() * 400;
-    }
-
     class Env {
       constructor() {
+        this.platforms = [];
         this.reset();
       }
 
       reset() {
-        this.x = 50; this.y = 250;
-        this.vx = 0; this.vy = 0;
-        this.ax = 0;
-        this.ammo = 0;
+        this.x = 50;
+        this.vx = 0;
+        this.vy = 0;
+        this.width = 30;
+        this.height = 30;
+        this.health = 100;
+        this.maxHealth = 100;
+        this.thought = "";
+        this.done = false;
+        this.steps = 0;
+        this.foodCollected = 0;
         this.projectiles = [];
         this.enemies = [];
-        this.done = false; this.onGround = true;
-        this.steps = 0;
-        this.thought = "";
+
+        this.generatePlatforms();
+        this.setStartOnPlatform();
+
         this.food = this.spawnFood();
+
         return this.getState();
       }
 
-      spawnFood() {
-        return { x: randomX(), y: 250, w: 15, h: 15, collected: false };
+      setStartOnPlatform() {
+        const startPlat = this.platforms[Math.floor(Math.random() * this.platforms.length)];
+        this.x = startPlat.x + 10;
+        this.y = startPlat.y - this.height;
       }
 
-      spawnEnemy() {
-        const ex = Math.random() < 0.5 ? 550 : 100;
-        this.enemies.push({ x: ex, y: 250, w: 30, h: 30 });
+      generatePlatforms() {
+        this.platforms = [];
+        for (let i = 0; i < 5; i++) {
+          let x = Math.random() * (canvas.width - 100);
+          let y = 100 + Math.random() * 150;
+          this.platforms.push({ x, y, w: 100, h: 10 });
+        }
+      }
+
+      spawnFood() {
+        const plat = this.platforms[Math.floor(Math.random() * this.platforms.length)];
+        return {
+          x: plat.x + 40,
+          y: plat.y - 15,
+          w: 15,
+          h: 15,
+          collected: false
+        };
       }
 
       setThought(text) {
@@ -106,81 +128,135 @@
       }
 
       getState() {
-        return tf.tensor2d([[this.x / 600, this.y / 300, this.vx / 10, this.vy / 10, this.onGround ? 1 : 0]]);
+        return tf.tensor2d([[this.x / 600, this.y / 300, this.vx / 10, this.vy / 10, this.onPlatform() ? 1 : 0]]);
       }
 
-      fireProjectile() {
-        if (this.ammo > 0) {
-          this.projectiles.push({ x: this.x + 15, y: this.y + 15, vx: 4 });
-          this.ammo--;
+      onPlatform() {
+        for (let plat of this.platforms) {
+          if (
+            this.y + this.height >= plat.y &&
+            this.y + this.height <= plat.y + 10 &&
+            this.x + this.width > plat.x &&
+            this.x < plat.x + plat.w
+          ) {
+            return true;
+          }
         }
+        return false;
       }
 
       step(action) {
-        this.ax = 0;
-        if (action === 0) this.ax = -0.4;
-        if (action === 1) this.ax = 0.4;
-        if (action === 2 && this.onGround) {
+        if (action === 0) this.vx = -2.5;
+        if (action === 1) this.vx = 2.5;
+        if (action === 2 && this.onPlatform()) {
           this.vy = -10;
-          this.onGround = false;
         }
-        if (action === 3) this.fireProjectile();
 
-        this.vx += this.ax;
-        this.vx *= 0.9;
         this.x += this.vx;
         this.y += this.vy;
         this.vy += gravity;
+        this.vx *= 0.9;
 
-        if (this.y + 30 >= floor) {
-          this.y = floor - 30;
+        // Boundaries & punishment
+        if (this.x < 0 || this.x + this.width > canvas.width) {
+          this.health -= 10;
+          this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
+        }
+
+        // Platform collision
+        if (!this.onPlatform()) {
+          // Fall off screen = death
+          if (this.y > canvas.height) {
+            this.health = 0;
+          }
+        } else {
           this.vy = 0;
-          this.onGround = true;
+          this.y = this.platforms.find(p => this.y + this.height >= p.y && this.x + this.width > p.x && this.x < p.x + p.w).y - this.height;
         }
 
-        if (this.x < 0 || this.x + 30 > canvas.width) {
-          this.x = Math.max(0, Math.min(canvas.width - 30, this.x));
-          this.vx = 0;
-        }
-
+        // Collect food
         let reward = 0.01;
-
-        if (!this.food.collected &&
-            this.x + 30 > this.food.x &&
-            this.x < this.food.x + this.food.w &&
-            this.y + 30 > this.food.y) {
+        if (
+          !this.food.collected &&
+          this.x + this.width > this.food.x &&
+          this.x < this.food.x + this.food.w &&
+          this.y + this.height > this.food.y
+        ) {
           this.food.collected = true;
-          this.ammo = 3;
+          this.foodCollected++;
+          addGoal("⚔️ Shoot enemies!");
           reward += 1.0;
-          addGoal("⚔️ Use ammo to defeat the enemy!");
-          this.spawnEnemy();
-          this.food = this.spawnFood();
+
+          // Spawn an enemy
+          const ex = Math.random() < 0.5 ? 0 : canvas.width - 20;
+          this.enemies.push({ x: ex, y: 250, w: 20, h: 20, vx: ex === 0 ? 1 : -1 });
         }
 
-        this.projectiles.forEach(p => p.x += p.vx);
+        // Projectiles
+        if (this.foodCollected > 0 && this.steps % 60 === 0) {
+          this.projectiles.push({ x: this.x + this.width / 2, y: this.y + 10, vx: 4, w: 5, h: 5 });
+          this.foodCollected--;
+        }
+
+        for (let p of this.projectiles) p.x += p.vx;
         this.projectiles = this.projectiles.filter(p => p.x < canvas.width);
 
-        this.enemies.forEach(e => {
+        // Enemies move and check for collision
+        for (let enemy of this.enemies) {
+          enemy.x += enemy.vx;
+
           for (let p of this.projectiles) {
-            if (p.x > e.x && p.x < e.x + e.w && p.y > e.y && p.y < e.y + e.h) {
-              e.dead = true;
-              reward += 0.5;
+            if (
+              p.x < enemy.x + enemy.w &&
+              p.x + p.w > enemy.x &&
+              p.y < enemy.y + enemy.h &&
+              p.y + p.h > enemy.y
+            ) {
+              enemy.hit = true;
             }
           }
-        });
-        this.enemies = this.enemies.filter(e => !e.dead);
+
+          if (
+            this.x < enemy.x + enemy.w &&
+            this.x + this.width > enemy.x &&
+            this.y < enemy.y + enemy.h &&
+            this.y + this.height > enemy.y
+          ) {
+            this.health -= 20;
+            enemy.hit = true;
+          }
+        }
+
+        this.enemies = this.enemies.filter(e => !e.hit);
 
         this.steps++;
-        if (this.steps > 1500) this.done = true;
+        if (this.health <= 0) {
+          this.explode();
+          return { state: this.reset(), reward: -1, done: false };
+        }
+
+        if (this.steps > 1500) {
+          this.done = true;
+        }
 
         return { state: this.getState(), reward, done: this.done };
+      }
+
+      explode() {
+        for (let i = 0; i < 10; i++) {
+          ctx.fillStyle = "red";
+          ctx.fillRect(this.x + Math.random() * 20 - 10, this.y + Math.random() * 20 - 10, 4, 4);
+        }
       }
 
       render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "#333";
-        ctx.fillRect(0, floor, canvas.width, 20);
+        // Platforms
+        for (let plat of this.platforms) {
+          ctx.fillStyle = "#444";
+          ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+        }
 
         // Food
         if (!this.food.collected) {
@@ -188,38 +264,40 @@
           ctx.fillRect(this.food.x, this.food.y, this.food.w, this.food.h);
         }
 
-        // Projectiles
-        ctx.fillStyle = "#0ff";
-        this.projectiles.forEach(p => {
-          ctx.fillRect(p.x, p.y, 5, 5);
-        });
-
         // Enemies
-        ctx.fillStyle = "#f44";
-        this.enemies.forEach(e => {
+        for (let e of this.enemies) {
+          ctx.fillStyle = "red";
           ctx.fillRect(e.x, e.y, e.w, e.h);
-        });
+        }
+
+        // Projectiles
+        for (let p of this.projectiles) {
+          ctx.fillStyle = "#0ff";
+          ctx.fillRect(p.x, p.y, p.w, p.h);
+        }
 
         // John
         ctx.fillStyle = "#4af";
-        ctx.fillRect(this.x, this.y, 30, 30);
+        ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = "#fff";
         ctx.fillRect(this.x + 5, this.y + 8, 5, 5);
         ctx.fillRect(this.x + 20, this.y + 8, 5, 5);
-        ctx.font = "10px monospace";
         ctx.fillText("John", this.x + 5, this.y - 5);
 
+        // Thought bubble
         if (this.thought) {
           ctx.fillStyle = "#fff";
           ctx.font = "10px monospace";
           ctx.fillText(`Thinking: ${this.thought}`, this.x - 10, this.y - 20);
         }
 
-        if (this.food.collected && this.steps < 30) {
-          ctx.fillStyle = "gold";
-          ctx.font = "12px monospace";
-          ctx.fillText("Yum! 😋", this.x + 5, this.y - 35);
-        }
+        // Health bar
+        ctx.fillStyle = "#fff";
+        ctx.fillText("Health", 10, 10);
+        ctx.fillStyle = "green";
+        ctx.fillRect(60, 2, (this.health / this.maxHealth) * 100, 8);
+        ctx.strokeStyle = "#fff";
+        ctx.strokeRect(60, 2, 100, 8);
       }
     }
 
@@ -232,11 +310,11 @@
       createModel() {
         const model = tf.sequential();
         model.add(tf.layers.dense({ units: 24, inputShape: [5], activation: 'relu' }));
-        model.add(tf.layers.dense({ units: 4, activation: 'softmax' })); // 4 actions now
+        model.add(tf.layers.dense({ units: 3, activation: 'softmax' }));
         return model;
       }
 
-      async train(episodes = 200) {
+      async train(episodes = 100) {
         for (let e = 0; e < episodes; e++) {
           const env = new Env();
           let rewards = [], actions = [], states = [];
@@ -248,13 +326,8 @@
             const probs = actionProbs.dataSync();
             const action = tf.multinomial(actionProbs, 1).dataSync()[0];
 
-            const symbols = ["←", "→", "↑", "🔫"];
-            let confidence = probs[action];
-            let emoji = "😕";
-            if (confidence > 0.33) emoji = "😐";
-            if (confidence > 0.66) emoji = "😁";
-            if (confidence > 0.9) emoji = "🤩";
-            env.setThought(`${emoji} ${symbols[action]} (${confidence.toFixed(2)})`);
+            const emoji = probs[action] > 0.9 ? "🤩" : probs[action] > 0.66 ? "😁" : probs[action] > 0.33 ? "😐" : "😕";
+            env.setThought(`${emoji} ${["←", "→", "↑"][action]} (${probs[action].toFixed(2)})`);
 
             const { state: nextState, reward, done } = env.step(action);
 
@@ -271,7 +344,7 @@
 
           await this.optimizer.minimize(() => {
             const logits = this.model.apply(inputs);
-            const labelsOneHot = tf.oneHot(labels, 4);
+            const labelsOneHot = tf.oneHot(labels, 3);
             const logProbs = tf.log(tf.sum(tf.mul(logits, labelsOneHot), 1));
             return tf.neg(tf.mean(tf.mul(logProbs, advantages)));
           });
@@ -279,7 +352,7 @@
           console.log(`Episode ${e + 1} complete. Total reward: ${rewards.reduce((a, b) => a + b, 0).toFixed(2)}`);
         }
 
-        alert("🎉 John has evolved!");
+        alert("🎉 John got tougher and smarter!");
       }
 
       discountRewards(rewards, gamma = 0.95) {
@@ -293,7 +366,7 @@
     }
 
     const agent = new Agent();
-    agent.train(150);
+    agent.train(100);
   </script>
 </body>
 </html>
