@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>John Learns to Move a Body</title>
+  <style>
+    body {
+      background: #0d0d0d;
+      color: #f0f0f0;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      background: #1a1a1a;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #333;
+      box-shadow: 0 0 20px #0ff;
+    }
+    h1 { color: #4af; }
+  </style>
+</head>
+<body>
+  <h1>John Learns to Control a Skeleton</h1>
+  <canvas id="game" width="600" height="400"></canvas>  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    class Segment {
+      constructor(x, y, length, angle = 0) {
+        this.x = x;
+        this.y = y;
+        this.length = length;
+        this.angle = angle;
+      }
+
+      getEnd() {
+        return {
+          x: this.x + this.length * Math.cos(this.angle),
+          y: this.y + this.length * Math.sin(this.angle)
+        };
+      }
+
+      moveBaseTo(x, y) {
+        this.x = x;
+        this.y = y;
+      }
+
+      render() {
+        const end = this.getEnd();
+        ctx.strokeStyle = "#4af";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+      }
+    }
+
+    class Skeleton {
+      constructor(x, y) {
+        this.hip = { x, y };
+        this.upperLegL = new Segment(x, y, 30, Math.PI / 2);
+        this.lowerLegL = new Segment(0, 0, 30, Math.PI / 2);
+
+        this.upperLegR = new Segment(x, y, 30, Math.PI / 2);
+        this.lowerLegR = new Segment(0, 0, 30, Math.PI / 2);
+
+        this.torso = new Segment(x, y, 40, -Math.PI / 2);
+        this.head = new Segment(0, 0, 10, -Math.PI / 2);
+
+        this.upperArmL = new Segment(0, 0, 25, -Math.PI / 2);
+        this.lowerArmL = new Segment(0, 0, 25, -Math.PI / 2);
+
+        this.upperArmR = new Segment(0, 0, 25, -Math.PI / 2);
+        this.lowerArmR = new Segment(0, 0, 25, -Math.PI / 2);
+
+        this.reset();
+      }
+
+      reset() {
+        this.upperLegL.angle = this.upperLegR.angle = Math.PI / 2;
+        this.lowerLegL.angle = this.lowerLegR.angle = Math.PI / 2;
+        this.torso.angle = -Math.PI / 2;
+        this.upperArmL.angle = this.upperArmR.angle = -Math.PI / 2;
+        this.lowerArmL.angle = this.lowerArmR.angle = -Math.PI / 2;
+      }
+
+      updateAngles(actions) {
+        const delta = 0.1;
+        const joints = [
+          this.upperLegL, this.lowerLegL,
+          this.upperLegR, this.lowerLegR,
+          this.upperArmL, this.lowerArmL,
+          this.upperArmR, this.lowerArmR
+        ];
+
+        for (let i = 0; i < joints.length; i++) {
+          const act = actions[i]; // 0 = -, 1 = neutral, 2 = +
+          if (act === 0) joints[i].angle -= delta;
+          if (act === 2) joints[i].angle += delta;
+        }
+      }
+
+      render() {
+        // Legs
+        this.upperLegL.moveBaseTo(this.hip.x - 5, this.hip.y);
+        const kneeL = this.upperLegL.getEnd();
+        this.lowerLegL.moveBaseTo(kneeL.x, kneeL.y);
+
+        this.upperLegR.moveBaseTo(this.hip.x + 5, this.hip.y);
+        const kneeR = this.upperLegR.getEnd();
+        this.lowerLegR.moveBaseTo(kneeR.x, kneeR.y);
+
+        // Torso
+        this.torso.moveBaseTo(this.hip.x, this.hip.y);
+        const chest = this.torso.getEnd();
+
+        // Head
+        this.head.moveBaseTo(chest.x, chest.y);
+
+        // Arms
+        this.upperArmL.moveBaseTo(chest.x - 5, chest.y);
+        const elbowL = this.upperArmL.getEnd();
+        this.lowerArmL.moveBaseTo(elbowL.x, elbowL.y);
+
+        this.upperArmR.moveBaseTo(chest.x + 5, chest.y);
+        const elbowR = this.upperArmR.getEnd();
+        this.lowerArmR.moveBaseTo(elbowR.x, elbowR.y);
+
+        // Render all
+        this.upperLegL.render(); this.lowerLegL.render();
+        this.upperLegR.render(); this.lowerLegR.render();
+        this.torso.render();
+        this.head.render();
+        this.upperArmL.render(); this.lowerArmL.render();
+        this.upperArmR.render(); this.lowerArmR.render();
+
+        // Draw head circle
+        const headEnd = this.head.getEnd();
+        ctx.beginPath();
+        ctx.arc(headEnd.x, headEnd.y, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = "#4af";
+        ctx.fill();
+      }
+    }
+
+    const skeleton = new Skeleton(300, 300);
+
+    function renderFrame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      skeleton.render();
+    }
+
+    function randomActions() {
+      let acts = [];
+      for (let i = 0; i < 8; i++) {
+        acts.push(Math.floor(Math.random() * 3)); // 0,1,2
+      }
+      return acts;
+    }
+
+    async function run() {
+      for (let t = 0; t < 500; t++) {
+        const acts = randomActions();
+        skeleton.updateAngles(acts);
+        renderFrame();
+        await new Promise(r => setTimeout(r, 50));
+      }
+    }
+
+    run();
+  </script></body>
+</html>
