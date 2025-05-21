@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Gahool</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: black; font-family: sans-serif;
+  }
+  iframe {
+    width: 100%; height: 100%; border: none; transition: filter 0.3s;
+  }
+  #overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); color: white;
+    display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+  }
+  #overlay h2 {
+    font-size: 2rem; margin-bottom: 1rem;
+  }
+  #answerBox {
+    display: flex; flex-direction: column; align-items: center;
+  }
+  input[type="text"], .option, #submitBtn {
+    font-size: 1.2rem; padding: 10px 20px; margin: 8px; border: none; border-radius: 5px;
+  }
+  input[type="text"] {
+    background: #222; color: lightblue; text-align: center;
+  }
+  .option, #submitBtn {
+    background: #444; color: white; cursor: pointer;
+  }
+
+  /* New countdown timer style */
+  #countdown {
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    color: lightgray;
+    font-size: 1.2rem;
+    font-family: monospace;
+    user-select: none;
+    z-index: 1100;
+  }
+</style>
+</head>
+<body>
+  <iframe id="emulator" tabindex="0" ></iframe>
+
+  <div id="overlay" role="dialog" aria-modal="true" aria-labelledby="questionText" tabindex="0">
+    <h2 id="questionText">...</h2>
+    <div id="answerBox"></div>
+  </div>
+
+  <div id="countdown"></div> <!-- countdown timer -->
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const interval = parseInt(params.get("t") || "15");
+
+    const ROM = "https://galenite.wholeworldcoding.com/gmes/webretro/roms/Pokemon%20-%20Fire%20Red.gba";
+    const EMULATOR_URL = `https://galenite.wholeworldcoding.com/gmes/webretro/index.html?noautorefocus&core=autodetect&rom=${encodeURIComponent(ROM)}`;
+
+    const emulator = document.getElementById("emulator");
+    const overlay = document.getElementById("overlay");
+    const qText = document.getElementById("questionText");
+    const answerBox = document.getElementById("answerBox");
+    const countdownEl = document.getElementById("countdown");
+
+    emulator.src = EMULATOR_URL;
+
+    const questions = [];
+    for (const [key, val] of params.entries()) {
+      if (key.startsWith("q")) {
+        const i = parseInt(key.slice(1));
+        questions[i] = questions[i] || {};
+        questions[i].q = val;
+      } else if (key.startsWith("a")) {
+        const i = parseInt(key.slice(1));
+        questions[i] = questions[i] || {};
+        questions[i].a = val;
+      } else if (key.startsWith("o")) { // parse optional incorrect answers
+        const i = parseInt(key.slice(1));
+        questions[i] = questions[i] || {};
+        questions[i].o = val.split(",").map(s => s.trim()).filter(Boolean);
+      }
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    let questionQueue = shuffle([...questions]);
+    let questionActive = false;
+    let countdown = interval;
+    let countdownInterval = null;
+
+    function trapFocus(element) {
+      const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+      let focusableElements = Array.from(element.querySelectorAll(focusableElementsString));
+      focusableElements = focusableElements.filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement);
+      if (focusableElements.length === 0) return;
+
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+
+      function handleFocus(e) {
+        if (e.key === 'Tab' || e.keyCode === 9) {
+          if (e.shiftKey) { // Shift + Tab
+            if (document.activeElement === firstFocusable) {
+              e.preventDefault();
+              lastFocusable.focus();
+            }
+          } else { // Tab
+            if (document.activeElement === lastFocusable) {
+              e.preventDefault();
+              firstFocusable.focus();
+            }
+          }
+        }
+      }
+
+      element.addEventListener('keydown', handleFocus);
+
+      return () => {
+        element.removeEventListener('keydown', handleFocus);
+      }
+    }
+
+    let removeTrapFocusListener = null;
+
+    function updateCountdownDisplay() {
+      countdownEl.textContent = `Next question in: ${countdown}s`;
+    }
+
+    function resetCountdown() {
+      countdown = interval;
+      updateCountdownDisplay();
+    }
+
+    function startCountdown() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      resetCountdown();
+      countdownInterval = setInterval(() => {
+        if (!questionActive) {
+          countdown--;
+          if (countdown <= 0) {
+            nextQuestion();
+            resetCountdown();
+          } else {
+            updateCountdownDisplay();
+          }
+        }
+      }, 1000);
+    }
+
+    function nextQuestion() {
+      if (questionActive) return;
+
+      if (questionQueue.length === 0) {
+        questionQueue = shuffle([...questions]);
+      }
+
+      const q = questionQueue.pop();
+      if (!q || !q.q) return;
+
+      questionActive = true;
+
+      // Disable interaction & add greyscale filter on iframe
+      emulator.style.pointerEvents = "none";
+      emulator.style.filter = "grayscale(100%)";
+      emulator.setAttribute('tabindex', '-1');
+
+      overlay.style.display = "flex";
+      qText.textContent = q.q;
+      answerBox.innerHTML = "";
+
+      const correctAnswers = (q.a || "").split(",").map(a => a.trim().toLowerCase()).filter(Boolean);
+      const optionalWrong = (q.o || []);
+      const allOptions = [...correctAnswers, ...optionalWrong].map(s => s.trim()).filter(Boolean);
+      
+      if (correctAnswers.length > 1 || optionalWrong.length > 0) {
+        // MULTIPLE CHOICE MODE with validation
+        shuffle(allOptions).forEach(answer => {
+          const btn = document.createElement("button");
+          btn.className = "option";
+          btn.textContent = answer;
+          btn.onclick = () => {
+            if (correctAnswers.includes(answer.toLowerCase())) {
+              closeOverlay();
+            } else {
+              btn.style.backgroundColor = "red";
+              setTimeout(() => {
+                btn.style.backgroundColor = "#444";
+              }, 600);
+            }
+          };
+          answerBox.appendChild(btn);
+        });
+        // Autofocus first option for keyboard users
+        setTimeout(() => {
+          const firstBtn = answerBox.querySelector("button.option");
+          if (firstBtn) firstBtn.focus();
+        }, 100);
+      } else {
+        // SINGLE ANSWER INPUT MODE
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Type your answer";
+        input.autofocus = true;
+        input.setAttribute("aria-label", "Answer input");
+
+        const btn = document.createElement("button");
+        btn.id = "submitBtn";
+        btn.textContent = "Submit";
+
+        answerBox.appendChild(input);
+        answerBox.appendChild(btn);
+
+        const expected = correctAnswers[0] || "";
+
+        let focusTimeout = null;
+
+        function restoreFocus() {
+          if (focusTimeout) clearTimeout(focusTimeout);
+          focusTimeout = setTimeout(() => {
+            if (document.activeElement !== input) {
+              input.focus();
+            }
+          }, 200);
+        }
+
+        input.addEventListener("focusout", () => {
+          restoreFocus();
+        });
+
+        input.addEventListener("focus", () => {
+          if (focusTimeout) {
+            clearTimeout(focusTimeout);
+            focusTimeout = null;
+          }
+        });
+
+        const validate = () => {
+          const val = input.value.trim().toLowerCase();
+          if (val === expected) {
+            closeOverlay();
+          } else {
+            input.style.color = "red";
+            setTimeout(() => {
+              input.style.color = "lightblue";
+              input.value = "";
+              input.focus();
+            }, 600);
+          }
+        };
+
+        btn.onclick = validate;
+        input.addEventListener("keypress", e => {
+          if (e.key === "Enter") validate();
+        });
+
+        input.focus();
+      }
+
+      // Trap focus inside overlay
+      removeTrapFocusListener = trapFocus(overlay);
+      overlay.focus();
+    }
+
+    function closeOverlay() {
+      overlay.style.display = "none";
+      emulator.style.pointerEvents = "auto";
+      emulator.style.filter = "none";  // Remove greyscale filter
+      emulator.setAttribute('tabindex', '0');
+      questionActive = false;
+
+      // Remove focus trap
+      if (removeTrapFocusListener) {
+        removeTrapFocusListener();
+        removeTrapFocusListener = null;
+      }
+
+      // Focus iframe explicitly
+      emulator.focus();
+    }
+
+    // Prevent iframe from stealing focus by intercepting focus and mousedown
+    emulator.addEventListener('focus', e => {
+      if (questionActive) {
+        e.preventDefault();
+        if (overlay.style.display === "flex") {
+          const focusable = overlay.querySelector('input, button');
+          if (focusable) focusable.focus();
+        }
+      }
+    }, true);
+
+    emulator.addEventListener('mousedown', e => {
+      if (questionActive) {
+        e.preventDefault();
+      }
+    }, true);
+
+    // Start countdown and check every second
+    startCountdown();
+
+  </script>
+</body>
+</html>
