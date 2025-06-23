@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OBS Gradient Background</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: linear-gradient(
+        135deg,
+        #ff7e5f,
+        #ffb347,
+        #ff6ec4,
+        #a18cd1,
+        #fbc2eb
+      );
+      background-size: 400% 400%;
+      animation: animateGradient 40s ease infinite;
+    }
+
+    @keyframes animateGradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+</body>
+</html>
