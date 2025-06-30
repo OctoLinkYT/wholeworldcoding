@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WWC Chat</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; background: #f0f0f0; }
+    #messages { background: white; padding: 1em; border-radius: 5px; max-height: 300px; overflow-y: auto; margin-bottom: 1em; }
+    .msg { margin: 0.5em 0; padding: 0.3em 0.5em; background: #e0e0ff; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to WWC Chat</h1>
+  <div id="user"></div>
+  <div id="messages"></div>
+
+  <input id="messageInput" placeholder="Type a message..." />
+  <button id="sendBtn">Send</button>
+  <button id="clearBtn">Clear Messages</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      deleteDoc,
+      doc,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiR4FTXOuS-IvEu0GeOnDpOYL2t3I2OSQ",
+      authDomain: "wholewrldcoding.firebaseapp.com",
+      projectId: "wholewrldcoding",
+      storageBucket: "wholewrldcoding.firebasestorage.app",
+      messagingSenderId: "655030339964",
+      appId: "1:655030339964:web:9f37974e88fbdbf81b7cf9",
+      measurementId: "G-7TC98Q6H2E"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const authData = JSON.parse(localStorage.getItem("wwc-auth") || "{}");
+    if (!authData.uid) {
+      window.location.href = `/auth?return=${encodeURIComponent(location.href)}`;
+    }
+
+    const userDiv = document.getElementById("user");
+    const messagesDiv = document.getElementById("messages");
+    const messageInput = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    userDiv.innerHTML = `<p>Signed in as <b>${authData.name}</b> (${authData.email})</p>`;
+
+    const userMsgsRef = collection(db, "users", authData.uid, "messages");
+
+    async function loadMessages() {
+      messagesDiv.innerHTML = `<p>Loading...</p>`;
+      const q = query(userMsgsRef, orderBy("timestamp"));
+      const snapshot = await getDocs(q);
+      messagesDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "msg";
+        div.textContent = data.text;
+        messagesDiv.appendChild(div);
+      });
+    }
+
+    sendBtn.onclick = async () => {
+      const text = messageInput.value.trim();
+      if (!text) return;
+      await addDoc(userMsgsRef, {
+        text,
+        timestamp: new Date()
+      });
+      messageInput.value = "";
+      loadMessages();
+    };
+
+    clearBtn.onclick = async () => {
+      const snapshot = await getDocs(userMsgsRef);
+      const deletes = snapshot.docs.map(docSnap =>
+        deleteDoc(doc(db, "users", authData.uid, "messages", docSnap.id))
+      );
+      await Promise.all(deletes);
+      loadMessages();
+    };
+
+    loadMessages();
+  </script>
+</body>
+</html>
