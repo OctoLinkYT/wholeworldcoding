@@ -1,137 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Auth</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/umd/supabase.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        #auth-container {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-        input {
-            width: 100%;
-            padding: 0.5rem;
-            margin: 0.5rem 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            width: 100%;
-            padding: 0.5rem;
-            margin: 0.5rem 0;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        h1 {
-            margin-bottom: 1rem;
-            color: #333;
-        }
-        #profile h2 {
-            color: #333;
-        }
-        #profile button {
-            background-color: #dc3545;
-        }
-        #profile button:hover {
-            background-color: #c82333;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Sign In - WholeWorldCoding</title>
 </head>
 <body>
-    <div id="auth-container">
-        <h1>Supabase Authentication</h1>
-        <div id="login">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Password">
-            <button onclick="signIn()">Sign In</button>
-            <button onclick="signUp()">Sign Up</button>
-        </div>
-        <div id="profile" style="display:none;">
-            <h2>Welcome, <span id="user-email"></span></h2>
-            <button onclick="signOut()">Sign Out</button>
-        </div>
-    </div>
-    <script>
-        // Initialize Supabase
-        const supabaseUrl = 'https://kkwitvdnlspvoqbcahxz.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtrd2l0dmRubHNwdm9xYmNhaHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjAwOTU1ODAsImV4cCI6MjAzNTY3MTU4MH0.47EDO0SRnvSLvCM_Ih8p5Q5TpQyeNoBykUqCVv1SyyM';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  <h1>Sign In</h1>
 
-        // Get the redirection URL from query parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectTo = urlParams.get('redir') || 'protected.html';
+  <button id="googleBtn">Sign in with Google</button>
+  <button id="githubBtn">Sign in with GitHub</button>
 
-        // Check if user is logged in
-        async function checkUser() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                document.getElementById('login').style.display = 'none';
-                document.getElementById('profile').style.display = 'block';
-                document.getElementById('user-email').textContent = user.email;
-                window.location.href = redirectTo;
-            } else {
-                document.getElementById('login').style.display = 'block';
-                document.getElementById('profile').style.display = 'none';
-            }
-        }
+  <h3>Email Login</h3>
+  <input id="email" type="email" placeholder="Email"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button id="emailLoginBtn">Sign in with Email</button>
+  <p><a href="#" id="registerLink">Don't have an account? Register</a></p>
 
-        // Sign In function
-        async function signIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                console.error('Error signing in:', error);
-            } else {
-                checkUser();
-            }
-        }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+    import {
+      getAuth,
+      signInWithPopup,
+      GoogleAuthProvider,
+      GithubAuthProvider,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-        // Sign Up function
-        async function signUp() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signUp({ email, password });
-            if (error) {
-                console.error('Error signing up:', error);
-            } else {
-                checkUser();
-            }
-        }
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiR4FTXOuS-IvEu0GeOnDpOYL2t3I2OSQ",
+      authDomain: "wholewrldcoding.firebaseapp.com",
+      projectId: "wholewrldcoding",
+      storageBucket: "wholewrldcoding.firebasestorage.app",
+      messagingSenderId: "655030339964",
+      appId: "1:655030339964:web:9f37974e88fbdbf81b7cf9",
+      measurementId: "G-7TC98Q6H2E"
+    };
 
-        // Sign Out function
-        async function signOut() {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error signing out:', error);
-            } else {
-                checkUser();
-            }
-        }
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+    const auth = getAuth(app);
 
-        // Check user on page load
-        checkUser();
-    </script>
+    const returnUrl = new URLSearchParams(window.location.search).get("return") || "/";
+
+    function storeAndRedirect(user) {
+      const userData = {
+        name: user.displayName,
+        email: user.email,
+        uid: user.uid,
+        provider: user.providerData[0]?.providerId || "unknown"
+      };
+      localStorage.setItem("wwc-auth", JSON.stringify(userData));
+      window.location.href = returnUrl;
+    }
+
+    document.getElementById("googleBtn").onclick = () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then(result => storeAndRedirect(result.user))
+        .catch(err => alert("Google Sign-in Error:\n" + err.message));
+    };
+
+    document.getElementById("githubBtn").onclick = () => {
+      const provider = new GithubAuthProvider();
+      signInWithPopup(auth, provider)
+        .then(result => storeAndRedirect(result.user))
+        .catch(err => alert("GitHub Sign-in Error:\n" + err.message));
+    };
+
+    document.getElementById("emailLoginBtn").onclick = () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then(result => storeAndRedirect(result.user))
+        .catch(err => alert("Email Sign-in Error:\n" + err.message));
+    };
+
+    document.getElementById("registerLink").onclick = (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(result => storeAndRedirect(result.user))
+        .catch(err => alert("Registration Error:\n" + err.message));
+    };
+  </script>
 </body>
 </html>
