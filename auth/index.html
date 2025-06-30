@@ -95,19 +95,13 @@
       font-weight: 500;
     }
 
-    body.dark .oauth-btn {
-      background: #1a1a1a;
-      border: 1px solid #444;
-      color: #eee;
-    }
+
 
     .oauth-btn:hover {
       background: #f0f0f0;
     }
 
-    body.dark .oauth-btn:hover {
-      background: #2a2a2a;
-    }
+
 
     .oauth-btn svg {
       width: 20px;
@@ -144,8 +138,6 @@
     <div class="shape shape2"></div>
     <div class="shape shape3"></div>
   </div>
-
-  <button class="theme-toggle" onclick="toggleTheme()">🌙 Theme</button>
 
   <div class="container">
     <h1>Sign In</h1>
@@ -239,15 +231,5 @@
     };
   </script>
 
-  <script>
-    function toggleTheme() {
-      document.body.classList.toggle("dark");
-      localStorage.setItem("wwc-theme", document.body.classList.contains("dark") ? "dark" : "light");
-    }
-
-    if (localStorage.getItem("wwc-theme") === "dark") {
-      document.body.classList.add("dark");
-    }
-  </script>
 </body>
 </html>
