@@ -1,72 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Sign In - WholeWorldCoding</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      background: #0d0d0d;
-      color: #ffffff;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    :root {
+      --accent: #c084fc;
+      --bg-light: #f4f4f8;
+      --bg-dark: #121212;
+      --card-light: #ffffffee;
+      --card-dark: #1e1e1ecc;
+      --text-light: #222;
+      --text-dark: #eee;
+    }
+
+    html, body {
       margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      transition: background 0.3s ease;
+    }
+
+    body.light {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .bg-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.2;
+      filter: blur(60px);
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .light .shape { opacity: 0.25; }
+    .dark .shape { opacity: 0.15; }
+
+    .shape1 { top: 10%; left: 5%; width: 300px; height: 300px; background: #ff80b5; }
+    .shape2 { bottom: 15%; right: 10%; width: 250px; height: 250px; background: #80ffd3; }
+    .shape3 { top: 50%; left: 50%; width: 200px; height: 200px; background: #809cff; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
     }
 
     .container {
-      background: #1a1a1a;
+      max-width: 420px;
+      margin: auto;
+      margin-top: 5vh;
+      background: var(--card-light);
       padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(180, 0, 255, 0.2);
-      max-width: 400px;
-      width: 90%;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    body.dark .container {
+      background: var(--card-dark);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
     }
 
     h1 {
       text-align: center;
-      color: #e0b3ff;
       margin-bottom: 1rem;
+      font-size: 2rem;
+      color: var(--accent);
     }
 
-    button, input {
+    input, button {
       width: 100%;
       padding: 0.75rem;
       margin: 0.5rem 0;
-      border: none;
-      border-radius: 8px;
       font-size: 1rem;
-      transition: 0.2s ease-in-out;
+      border: none;
+      border-radius: 10px;
+      box-sizing: border-box;
+      transition: background 0.2s ease;
     }
 
     input {
-      background: #333;
+      background: #eee;
+    }
+
+    body.dark input {
+      background: #2b2b2b;
       color: white;
     }
 
-    input::placeholder {
-      color: #aaa;
-    }
-
     button {
-      background: #8a2be2;
+      background: var(--accent);
       color: white;
       cursor: pointer;
     }
 
     button:hover {
-      background: #a64dff;
+      filter: brightness(1.1);
     }
 
     .oauth-btn {
-      background: #2e2e2e;
-      border: 1px solid #5a5a5a;
+      background: #333;
       color: white;
     }
 
-    .oauth-btn:hover {
-      background: #444;
+    body.dark .oauth-btn {
+      background: #555;
     }
 
     .link {
@@ -76,30 +133,48 @@
     }
 
     .link a {
-      color: #e0b3ff;
+      color: var(--accent);
       text-decoration: none;
     }
 
-    .link a:hover {
-      text-decoration: underline;
+    .theme-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: var(--accent);
     }
   </style>
 </head>
-<body>
+<body class="light">
+  <button class="theme-toggle" id="themeToggle">🌓</button>
+
+  <div class="bg-shapes">
+    <div class="shape shape1"></div>
+    <div class="shape shape2"></div>
+    <div class="shape shape3"></div>
+  </div>
+
   <div class="container">
-    <h1>Welcome</h1>
+    <h1>Sign In</h1>
 
-    <button class="oauth-btn" id="googleBtn">Sign in with Google</button>
-    <button class="oauth-btn" id="githubBtn">Sign in with GitHub</button>
+    <button class="oauth-btn" id="googleBtn">Continue with Google</button>
+    <button class="oauth-btn" id="githubBtn">Continue with GitHub</button>
 
-    <hr style="margin: 1.5rem 0; border-color: #333;">
+    <hr style="margin: 1.5rem 0; border-color: #ccc;">
 
     <input id="email" type="email" placeholder="Email" />
     <input id="password" type="password" placeholder="Password" />
     <button id="emailLoginBtn">Sign in with Email</button>
 
     <div class="link">
-      <a href="#" id="registerLink">Don’t have an account? Register</a>
+      <a href="#" id="registerLink">Don't have an account? Register</a>
     </div>
   </div>
 
@@ -126,8 +201,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
-    const returnUrl = new URLSearchParams(window.location.search).get("return") || "/";
+    const returnUrl = new URLSearchParams(location.search).get("return") || "/";
 
     function storeAndRedirect(user) {
       const userData = {
@@ -142,33 +216,32 @@
 
     document.getElementById("googleBtn").onclick = () => {
       const provider = new GoogleAuthProvider();
-      signInWithPopup(auth, provider)
-        .then(result => storeAndRedirect(result.user))
-        .catch(err => alert("Google Sign-in Error:\n" + err.message));
+      signInWithPopup(auth, provider).then(r => storeAndRedirect(r.user)).catch(e => alert("Google Sign-in Error:\n" + e.message));
     };
 
     document.getElementById("githubBtn").onclick = () => {
       const provider = new GithubAuthProvider();
-      signInWithPopup(auth, provider)
-        .then(result => storeAndRedirect(result.user))
-        .catch(err => alert("GitHub Sign-in Error:\n" + err.message));
+      signInWithPopup(auth, provider).then(r => storeAndRedirect(r.user)).catch(e => alert("GitHub Sign-in Error:\n" + e.message));
     };
 
     document.getElementById("emailLoginBtn").onclick = () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then(result => storeAndRedirect(result.user))
-        .catch(err => alert("Email Sign-in Error:\n" + err.message));
+      signInWithEmailAndPassword(auth, email, password).then(r => storeAndRedirect(r.user)).catch(e => alert("Email Sign-in Error:\n" + e.message));
     };
 
     document.getElementById("registerLink").onclick = (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(result => storeAndRedirect(result.user))
-        .catch(err => alert("Registration Error:\n" + err.message));
+      createUserWithEmailAndPassword(auth, email, password).then(r => storeAndRedirect(r.user)).catch(e => alert("Registration Error:\n" + e.message));
+    };
+
+    // Theme toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.onclick = () => {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
     };
   </script>
 </body>
