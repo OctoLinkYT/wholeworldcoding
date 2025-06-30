@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feed - WWC Social</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+    header {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 2px solid #6a0dad;
+    }
+    header nav a {
+      color: #6a0dad;
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 1rem;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    header nav a:hover {
+      color: #7f4ade;
+    }
+    main {
+      max-width: 800px;
+      width: 100%;
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .post {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .post video {
+      width: 100%;
+      max-height: 360px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: black;
+    }
+    .post-info {
+      color: #6a0dad;
+      font-weight: 600;
+      font-size: 1rem;
+      user-select: none;
+    }
+    .loading, .error {
+      color: #666;
+      font-style: italic;
+      text-align: center;
+      margin-top: 3rem;
+      user-select: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #121212;
+        color: #eee;
+      }
+      header {
+        border-bottom-color: #a855f7;
+      }
+      header nav a {
+        color: #a855f7;
+      }
+      header nav a:hover {
+        color: #d8b4fe;
+      }
+      .post {
+        background: #1e1e1e;
+        box-shadow: 0 8px 24px rgb(255 255 255 / 0.1);
+      }
+      .post-info {
+        color: #d8b4fe;
+      }
+      .loading, .error {
+        color: #555;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>WWC Social</strong></div>
+    <nav>
+      <a href="profile.html">Profile</a>
+      <a href="record.html">Record</a>
+      <a href="feed.html">Feed</a>
+      <a href="#" id="signOutBtn">Sign Out</a>
+    </nav>
+  </header>
+  <main id="feedContainer">
+    <div class="loading">Loading feed...</div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      getDocs,
+      deleteDoc,
+      doc,
+      getDoc,
+      where
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      getDownloadURL,
+      deleteObject
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiR4FTXOuS-IvEu0GeOnDpOYL2t3I2OSQ",
+      authDomain: "wholewrldcoding.firebaseapp.com",
+      projectId: "wholewrldcoding",
+      storageBucket: "wholewrldcoding.firebasestorage.app",
+      messagingSenderId: "655030339964",
+      appId: "1:655030339964:web:9f37974e88fbdbf81b7cf9",
+      measurementId: "G-7TC98Q6H2E"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const feedContainer = document.getElementById("feedContainer");
+    const signOutBtn = document.getElementById("signOutBtn");
+
+    function isPostActive(postTimestamp) {
+      if (!postTimestamp) return false;
+      const postDate = postTimestamp.toDate();
+      return (Date.now() - postDate.getTime()) < 3600 * 1000; // 1 hour in ms
+    }
+
+    function createPostElement(videoUrl, username) {
+      const postDiv = document.createElement("div");
+      postDiv.className = "post";
+
+      const video = document.createElement("video");
+      video.src = videoUrl;
+      video.controls = true;
+      video.autoplay = false;
+      video.muted = true;
+      video.playsInline = true;
+      postDiv.appendChild(video);
+
+      const info = document.createElement("div");
+      info.className = "post-info";
+      info.textContent = `Posted by: ${username}`;
+      postDiv.appendChild(info);
+
+      return postDiv;
+    }
+
+    async function deleteExpiredPost(docSnap) {
+      const data = docSnap.data();
+      try {
+        await deleteObject(ref(storage, data.videoPath));
+        await deleteDoc(doc(db, "posts", docSnap.id));
+        console.log("Deleted expired post:", docSnap.id);
+      } catch (e) {
+        console.error("Error deleting expired post", docSnap.id, e);
+      }
+    }
+
+    async function loadFeed() {
+      feedContainer.innerHTML = `<div class="loading">Loading feed...</div>`;
+      try {
+        const postsQuery = query(
+          collection(db, "posts"),
+          orderBy("timestamp", "desc")
+        );
+        const snapshot = await getDocs(postsQuery);
+
+        feedContainer.innerHTML = "";
+        let hasActivePosts = false;
+
+        for (const docSnap of snapshot.docs) {
+          const data = docSnap.data();
+          if (isPostActive(data.timestamp)) {
+            hasActivePosts = true;
+            const videoUrl = await getDownloadURL(ref(storage, data.videoPath));
+
+            // Get username of poster
+            const userDoc = await getDoc(doc(db, "users", data.ownerUid));
+            const username = userDoc.exists() ? userDoc.data().username || "Unnamed" : "Unnamed";
+
+            feedContainer.appendChild(createPostElement(videoUrl, username));
+          } else {
+            await deleteExpiredPost(docSnap);
+          }
+        }
+
+        if (!hasActivePosts) {
+          feedContainer.innerHTML = `<p class="loading">No active posts yet.</p>`;
+        }
+      } catch (err) {
+        feedContainer.innerHTML = `<p class="error">Error loading feed: ${err.message}</p>`;
+      }
+    }
+
+    signOutBtn.onclick = async () => {
+      await signOut(auth);
+      window.location.href = "/auth?return=/feed.html";
+    };
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        const ret = encodeURIComponent(window.location.href);
+        window.location.href = `/auth?return=${ret}`;
+        return;
+      }
+      loadFeed();
+    });
+  </script>
+</body>
+</html>
