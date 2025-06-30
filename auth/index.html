@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sign In - WholeWorldCoding</title>
+  <title>Sign In/Register</title>
   <style>
     :root {
       --bg-light: #f9f9f9;
@@ -38,11 +38,14 @@
     .container {
       max-width: 420px;
       margin: 8vh auto;
-      padding: 2rem;
+      padding: 2rem 2.5rem; /* Added horizontal padding for better centering */
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.9);
       color: var(--text-light);
       box-shadow: 0 0 24px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     body.dark .container {
@@ -54,20 +57,25 @@
       text-align: center;
       color: var(--accent);
       margin-bottom: 1rem;
+      width: 100%;
     }
 
     input, button {
       width: 100%;
+      max-width: 100%;
       padding: 0.75rem;
       margin-top: 0.5rem;
       border-radius: 8px;
       font-size: 1rem;
       border: none;
       transition: 0.2s;
+      box-sizing: border-box;
+      display: block;
     }
 
     input {
       background: #eee;
+      text-align: left;
     }
 
     body.dark input {
@@ -79,6 +87,7 @@
       background: var(--accent);
       color: white;
       cursor: pointer;
+      font-weight: 600;
     }
 
     button:hover {
@@ -93,15 +102,13 @@
       border: 1px solid #ccc;
       color: #111;
       font-weight: 500;
+      margin-top: 1rem;
+      max-width: 100%;
     }
-
-
 
     .oauth-btn:hover {
       background: #f0f0f0;
     }
-
-
 
     .oauth-btn svg {
       width: 20px;
@@ -111,6 +118,17 @@
     .link {
       text-align: center;
       margin-top: 1rem;
+      width: 100%;
+    }
+
+    .link a {
+      cursor: pointer;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .link a:hover {
+      text-decoration: underline;
     }
 
     .theme-toggle {
@@ -129,6 +147,7 @@
       text-align: center;
       font-size: 0.85rem;
       opacity: 0.6;
+      width: 100%;
     }
   </style>
 </head>
@@ -140,15 +159,17 @@
   </div>
 
   <div class="container">
-    <h1>Sign In</h1>
+    <h1 id="formTitle">Sign In</h1>
 
-    <input id="email" type="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
-    <button id="emailLoginBtn">Sign in with Email</button>
+    <input id="email" type="email" placeholder="Email" autocomplete="username" />
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+    <button id="mainBtn">Sign In</button>
 
-    <div class="link"><a href="#" id="registerLink">Don't have an account? Register</a></div>
+    <div class="link" id="toggleText">
+      Don't have an account? <a id="toggleLink">Register</a>
+    </div>
 
-    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ccc;">
+    <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ccc; width: 100%; max-width: 420px;">
 
     <button class="oauth-btn" id="googleBtn">
       <svg viewBox="0 0 533.5 544.3"><path fill="#4285f4" d="M533.5 278.4c0-17.3-1.5-34-4.3-50.3H272v95.2h146.9c-6.4 34.6-25.2 63.8-53.8 83.4v68.9h86.9c50.7-46.7 81.5-115.4 81.5-197.2z"/><path fill="#34a853" d="M272 544.3c72.6 0 133.6-24 178.2-65.2l-86.9-68.9c-24.1 16.2-55 25.9-91.3 25.9-70 0-129.3-47.2-150.5-110.4h-89v69.6c44.8 88.4 136.6 149 239.5 149z"/><path fill="#fbbc04" d="M121.5 325.7c-10.3-30.4-10.3-63.3 0-93.7v-69.6h-89c-38.6 76.9-38.6 165.9 0 242.8l89-69.5z"/><path fill="#ea4335" d="M272 107.7c39.4-.6 77.4 13.8 106.6 40.1l79.6-79.6c-50.7-47.4-117.4-73.4-186.2-73.1-102.9 0-194.7 60.6-239.5 149l89 69.6c21.3-63.3 80.5-110.6 150.5-110.6z"/></svg>
@@ -190,6 +211,16 @@
     const auth = getAuth(app);
     const returnUrl = new URLSearchParams(location.search).get("return") || "/";
 
+    // Track mode: signIn or register
+    let mode = "signIn";
+
+    const formTitle = document.getElementById("formTitle");
+    const mainBtn = document.getElementById("mainBtn");
+    const toggleText = document.getElementById("toggleText");
+    const toggleLink = document.getElementById("toggleLink");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
     function storeAndRedirect(user) {
       const data = {
         name: user.displayName,
@@ -201,6 +232,53 @@
       location.href = returnUrl;
     }
 
+    function switchMode() {
+      if (mode === "signIn") {
+        mode = "register";
+        formTitle.textContent = "Register";
+        mainBtn.textContent = "Register";
+        toggleText.innerHTML = 'Already have an account? <a id="toggleLink">Sign In</a>';
+      } else {
+        mode = "signIn";
+        formTitle.textContent = "Sign In";
+        mainBtn.textContent = "Sign In";
+        toggleText.innerHTML = 'Don\'t have an account? <a id="toggleLink">Register</a>';
+      }
+      // Re-attach toggle event because innerHTML replacement wipes events
+      document.getElementById("toggleLink").onclick = (e) => {
+        e.preventDefault();
+        switchMode();
+      };
+      // Clear inputs for fresh start
+      emailInput.value = "";
+      passwordInput.value = "";
+    }
+
+    toggleLink.onclick = (e) => {
+      e.preventDefault();
+      switchMode();
+    };
+
+    mainBtn.onclick = () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+      }
+
+      if (mode === "signIn") {
+        signInWithEmailAndPassword(auth, email, password)
+          .then(res => storeAndRedirect(res.user))
+          .catch(err => alert(err.message));
+      } else {
+        createUserWithEmailAndPassword(auth, email, password)
+          .then(res => storeAndRedirect(res.user))
+          .catch(err => alert(err.message));
+      }
+    };
+
     document.getElementById("googleBtn").onclick = () => {
       signInWithPopup(auth, new GoogleAuthProvider())
         .then(res => storeAndRedirect(res.user))
@@ -209,23 +287,6 @@
 
     document.getElementById("githubBtn").onclick = () => {
       signInWithPopup(auth, new GithubAuthProvider())
-        .then(res => storeAndRedirect(res.user))
-        .catch(err => alert(err.message));
-    };
-
-    document.getElementById("emailLoginBtn").onclick = () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then(res => storeAndRedirect(res.user))
-        .catch(err => alert(err.message));
-    };
-
-    document.getElementById("registerLink").onclick = (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      createUserWithEmailAndPassword(auth, email, password)
         .then(res => storeAndRedirect(res.user))
         .catch(err => alert(err.message));
     };
