@@ -3,22 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <title>Sign In - WholeWorldCoding</title>
+  <style>
+    body {
+      background: #0d0d0d;
+      color: #ffffff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(180, 0, 255, 0.2);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      text-align: center;
+      color: #e0b3ff;
+      margin-bottom: 1rem;
+    }
+
+    button, input {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: 0.2s ease-in-out;
+    }
+
+    input {
+      background: #333;
+      color: white;
+    }
+
+    input::placeholder {
+      color: #aaa;
+    }
+
+    button {
+      background: #8a2be2;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #a64dff;
+    }
+
+    .oauth-btn {
+      background: #2e2e2e;
+      border: 1px solid #5a5a5a;
+      color: white;
+    }
+
+    .oauth-btn:hover {
+      background: #444;
+    }
+
+    .link {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .link a {
+      color: #e0b3ff;
+      text-decoration: none;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h1>Sign In</h1>
+  <div class="container">
+    <h1>Welcome</h1>
 
-  <button id="googleBtn">Sign in with Google</button>
-  <button id="githubBtn">Sign in with GitHub</button>
+    <button class="oauth-btn" id="googleBtn">Sign in with Google</button>
+    <button class="oauth-btn" id="githubBtn">Sign in with GitHub</button>
 
-  <h3>Email Login</h3>
-  <input id="email" type="email" placeholder="Email"><br>
-  <input id="password" type="password" placeholder="Password"><br>
-  <button id="emailLoginBtn">Sign in with Email</button>
-  <p><a href="#" id="registerLink">Don't have an account? Register</a></p>
+    <hr style="margin: 1.5rem 0; border-color: #333;">
+
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button id="emailLoginBtn">Sign in with Email</button>
+
+    <div class="link">
+      <a href="#" id="registerLink">Don’t have an account? Register</a>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
     import {
       getAuth,
       signInWithPopup,
@@ -39,7 +125,6 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    getAnalytics(app);
     const auth = getAuth(app);
 
     const returnUrl = new URLSearchParams(window.location.search).get("return") || "/";
