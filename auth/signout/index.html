@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Signing Out...</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiR4FTXOuS-IvEu0GeOnDpOYL2t3I2OSQ",
+      authDomain: "wholewrldcoding.firebaseapp.com",
+      projectId: "wholewrldcoding",
+      storageBucket: "wholewrldcoding.firebasestorage.app",
+      messagingSenderId: "655030339964",
+      appId: "1:655030339964:web:9f37974e88fbdbf81b7cf9",
+      measurementId: "G-7TC98Q6H2E"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const returnUrl = new URLSearchParams(location.search).get("return") || "https://wholeworldcoding.com";
+
+    signOut(auth)
+      .then(() => {
+        localStorage.removeItem("wwc-auth");
+        window.location.href = returnUrl;
+      })
+      .catch((error) => {
+        console.error("Error during sign-out:", error);
+        // Redirect anyway if Firebase fails
+        localStorage.removeItem("wwc-auth");
+        window.location.href = returnUrl;
+      });
+  </script>
+</head>
+<body>
+  <p>Signing out...</p>
+</body>
+</html>
