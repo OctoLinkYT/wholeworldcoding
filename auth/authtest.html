@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+</head>
+<body>
+  <h1>Welcome</h1>
+  <div id="info"></div>
+
+  <script>
+    const authData = JSON.parse(localStorage.getItem("wwc-auth") || "{}");
+    if (!authData.name || !authData.email) {
+      window.location.href = `/auth?return=${encodeURIComponent(location.href)}`;
+    } else {
+      document.getElementById("info").innerHTML = `
+        <p>Name: ${authData.name}</p>
+        <p>Email: ${authData.email}</p>
+        <p>Provider: ${authData.provider}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
