@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minor Scale Chord Generator</title>
+  <style>
+    /* Basic styling for the piano roll and buttons */
+    .piano-roll { display: grid; grid-template-columns: repeat(12, 1fr); }
+    .key { width: 30px; height: 100px; margin: 2px; background-color: white; border: 1px solid black; }
+    .black-key { width: 20px; height: 60px; margin-left: -10px; background-color: black; z-index: 1; }
+  </style>
+</head>
+<body>
+  <h1>Minor Scale Chord Generator</h1>
+
+  <!-- Piano Roll Display -->
+  <div id="piano-roll" class="piano-roll"></div>
+
+  <!-- Controls -->
+  <button id="generate-chord">Generate Chord</button>
+  <button id="play-preview">Play Preview</button>
+  <button id="download-midi">Download MIDI</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.34/Tone.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/midi-js/0.3.0/MIDI.min.js"></script>
+
+  <script>
+    const notesInMinorScale = ['C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'];
+    let currentChord = [];
+
+    // Function to generate the I chord (1, 3, 5)
+    function generateChord() {
+      const tonic = notesInMinorScale[0]; // First note (root) of the scale (C)
+      const third = notesInMinorScale[2]; // 3rd (Eb)
+      const fifth = notesInMinorScale[4]; // 5th (G)
+      currentChord = [tonic, third, fifth];
+      displayPianoRoll(currentChord);
+    }
+
+    // Function to display the chord on a simple piano roll
+    function displayPianoRoll(chord) {
+      const pianoRoll = document.getElementById('piano-roll');
+      pianoRoll.innerHTML = ''; // Clear existing keys
+
+      // Generate piano roll with a few octaves
+      for (let i = 0; i < 12; i++) {
+        const key = document.createElement('div');
+        key.classList.add('key');
+        key.textContent = notesInMinorScale[i % notesInMinorScale.length];
+        if (chord.includes(notesInMinorScale[i])) {
+          key.style.backgroundColor = 'lightblue';
+        }
+        pianoRoll.appendChild(key);
+      }
+    }
+
+    // Play the chord preview using Tone.js
+    function playPreview() {
+      const synth = new Tone.Synth().toDestination();
+      currentChord.forEach(note => {
+        synth.triggerAttackRelease(note, "8n");
+      });
+    }
+
+    // Download the chord as a MIDI file
+    function downloadMIDI() {
+      const midi = new Midi();
+      const track = midi.addTrack();
+      currentChord.forEach(note => {
+        track.addNote({ midi: Tone.Frequency(note).toMidi(), time: 0 });
+      });
+      const dataUri = midi.toDataUri();
+      const link = document.createElement('a');
+      link.href = dataUri;
+      link.download = 'chord.mid';
+      link.click();
+    }
+
+    // Event Listeners
+    document.getElementById('generate-chord').addEventListener('click', generateChord);
+    document.getElementById('play-preview').addEventListener('click', playPreview);
+    document.getElementById('download-midi').addEventListener('click', downloadMIDI);
+  </script>
+</body>
+</html>
