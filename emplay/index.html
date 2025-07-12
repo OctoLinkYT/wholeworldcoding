@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GBA WebP Emulator Preview</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #111; color: #fff; }
+    canvas { image-rendering: pixelated; }
+    #output { margin-top: 1em; }
+  </style>
+</head>
+<body>
+  <h1>GBA Web Preview</h1>
+  <canvas id="screen" width="240" height="160"></canvas>
+  <div id="output"></div>  <script type="module">
+    // Load emulator (placeholder - replace with real emulator code)
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+    const outputDiv = document.getElementById('output');
+
+    // Mock game screen for now
+    const drawFakeGame = (input) => {
+      ctx.fillStyle = '#222';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#0f0';
+      ctx.font = '16px monospace';
+      ctx.fillText(`Input: ${input}`, 10, 80);
+    };
+
+    const encodeCanvasToWebP = async () => {
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp'));
+      const url = URL.createObjectURL(blob);
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'WebP Output';
+      img.width = 240;
+      outputDiv.innerHTML = '<p>WebP Preview:</p>';
+      outputDiv.appendChild(img);
+    };
+
+    const getInputFromURL = () => {
+      const match = window.location.pathname.match(/frame_(\w+)\.webp/);
+      return match ? match[1] : 'none';
+    };
+
+    const input = getInputFromURL();
+    drawFakeGame(input);
+    encodeCanvasToWebP();
+  </script></body>
+</html>
