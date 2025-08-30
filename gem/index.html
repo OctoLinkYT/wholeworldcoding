@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: monospace;
+      margin: 2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gem</h1>
+  <p><span id="tagName"></span></p>
+  <div id="content">Loading...</div>
+
+  <script>
+    // default tag is "home", or override with ?t=tag
+    const urlParams = new URLSearchParams(window.location.search);
+    const tag = urlParams.get("t") || "home";
+    document.getElementById("tagName").textContent = tag;
+
+    async function fetchTag(tag) {
+      try {
+        const response = await fetch("http://tinywebdb.appinventor.mit.edu/getvalue", {
+          method: "POST",
+          body: new URLSearchParams({ tag })
+        });
+        const data = await response.json(); // ["VALUE", "<tag>", "<value>"]
+        const value = data[2] || "";
+        document.getElementById("content").innerHTML = value; // render as HTML
+      } catch (err) {
+        document.getElementById("content").textContent = "Error: " + err;
+      }
+    }
+
+    fetchTag(tag);
+  </script>
+</body>
+</html>
