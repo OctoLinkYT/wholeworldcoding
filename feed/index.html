@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Social Feed</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; }
+    .post { border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; }
+  </style>
+</head>
+<body>
+  <h1>Mini Social Feed</h1>
+
+  <div id="feed"></div>
+
+  <h2>New Post</h2>
+  <form id="postForm">
+    <input type="text" id="title" placeholder="Title" required><br>
+    <textarea id="body" placeholder="What's on your mind?" required></textarea><br>
+    <input type="password" id="token" placeholder="GitHub Token" required><br>
+    <button type="submit">Post</button>
+  </form>
+
+  <script>
+    const owner = 'yourusername';
+    const repo = 'social-feed';
+
+    async function loadPosts() {
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues`);
+      const issues = await res.json();
+
+      const feed = document.getElementById('feed');
+      feed.innerHTML = '';
+      issues.forEach(issue => {
+        const div = document.createElement('div');
+        div.className = 'post';
+        div.innerHTML = `<strong>${issue.title}</strong><p>${issue.body}</p>`;
+        feed.appendChild(div);
+      });
+    }
+
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value;
+      const body = document.getElementById('body').value;
+      const token = document.getElementById('token').value;
+
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues`, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github+json'
+        },
+        body: JSON.stringify({ title, body })
+      });
+
+      if (res.ok) {
+        alert('Posted!');
+        loadPosts();
+        e.target.reset();
+      } else {
+        const error = await res.json();
+        alert('Error: ' + error.message);
+      }
+    });
+
+    loadPosts();
+  </script>
+</body>
+</html>
