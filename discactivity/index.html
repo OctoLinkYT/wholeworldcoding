@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Discord Activity Demo</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2rem; }
+    button { padding: 1rem; margin: 1rem; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to My Discord Activity!</h1>
+  <p>Click buttons to interact:</p>
+  <button id="btnHello">Say Hello</button>
+  <button id="btnRandom">Random Number</button>
+  <div id="output" style="margin-top:1rem; font-weight:bold;"></div>
+
+  <!-- Discord Embedded App SDK -->
+  <script src="https://cdn.discordapp.com/app/assets/1100842352086534176/discord-activity.js"></script>
+
+  <script>
+    // Initialize Discord Activity SDK
+    const sdk = new DiscordActivitySDK("1387103650853159106"); // Replace with your App Client ID
+    sdk.initialize();
+
+    const output = document.getElementById('output');
+
+    document.getElementById('btnHello').onclick = () => {
+      output.textContent = "Hello from Discord Activity!";
+      sdk.sendState({ message: "User clicked Hello" }); // Optional: update Discord presence/state
+    }
+
+    document.getElementById('btnRandom').onclick = () => {
+      const num = Math.floor(Math.random() * 100);
+      output.textContent = "Random number: " + num;
+      sdk.sendState({ message: "User clicked Random Number: " + num });
+    }
+  </script>
+</body>
+</html>
