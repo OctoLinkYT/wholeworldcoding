@@ -1,4 +1,5 @@
 #EXTM3U
 
-#EXTINF:-1 tvg-id="WWE" tvg-name="WrestleMania" group-title="WrestleMania",My Stream
+#EXTINF:-1 tvg-id="live1" tvg-name="Live Stream",Live Stream
+#EXTVLCOPT:http-user-agent=Mozilla/5.0
 https://pragmata.loreofeldenring.site/dailymotion/live/playlist/70.m3u8
