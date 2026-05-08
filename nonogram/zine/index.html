@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NONOGRAMS! Mini Zine Generator</title>
+
+<style>
+
+:root{
+    --bg:#efefef;
+    --card:#fff;
+    --text:#222;
+    --shadow:0 10px 30px rgba(0,0,0,.12);
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:20px;
+    background:linear-gradient(to bottom,#f8f8f8,#e9e9e9);
+    font-family:Arial,sans-serif;
+    color:var(--text);
+}
+
+.top{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-bottom:24px;
+}
+
+.logo{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    align-items:center;
+}
+
+.logo-row{
+    display:grid;
+    grid-template-columns:repeat(5,58px);
+    gap:5px;
+}
+
+.logo-box{
+    width:58px;
+    height:58px;
+    border:3px solid black;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    font-weight:900;
+    background:white;
+}
+
+.black{
+    background:black;
+    color:white;
+}
+
+.gray{
+    background:#dcdcdc;
+}
+
+.tagline{
+    margin-top:10px;
+    font-size:14px;
+    letter-spacing:3px;
+    opacity:.7;
+}
+
+.controls{
+    width:min(1100px,100%);
+    margin:auto;
+    background:white;
+    border-radius:20px;
+    padding:18px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:14px;
+    box-shadow:var(--shadow);
+}
+
+label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    font-weight:bold;
+}
+
+button{
+    border:none;
+    background:black;
+    color:white;
+    padding:10px 18px;
+    border-radius:12px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#pages{
+    margin-top:28px;
+    display:flex;
+    flex-direction:column;
+    gap:40px;
+    align-items:center;
+}
+
+.sheet-wrapper{
+    width:100%;
+    overflow-x:auto;
+}
+
+.sheet-title{
+    text-align:center;
+    font-size:22px;
+    font-weight:900;
+    margin-bottom:10px;
+}
+
+.sheet{
+    width:1100px;
+    height:850px;
+    background:white;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    grid-template-rows:repeat(2,1fr);
+    position:relative;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    margin:auto;
+}
+
+.page{
+    border:1px dashed #ccc;
+    position:relative;
+    padding:16px;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-width:0;
+}
+
+.page-number{
+    position:absolute;
+    bottom:6px;
+    right:8px;
+    font-size:11px;
+    opacity:.4;
+}
+
+.fold{
+    position:absolute;
+    background:rgba(255,0,0,.12);
+    pointer-events:none;
+}
+
+.fold-v{
+    left:50%;
+    top:0;
+    width:2px;
+    height:100%;
+}
+
+.fold-h{
+    top:50%;
+    left:0;
+    width:100%;
+    height:2px;
+}
+
+.cover{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+}
+
+.cover .logo-row{
+    grid-template-columns:repeat(5,42px);
+}
+
+.cover .logo-box{
+    width:42px;
+    height:42px;
+    font-size:22px;
+}
+
+.cover-sub{
+    margin-top:16px;
+    font-size:12px;
+    letter-spacing:2px;
+    opacity:.7;
+}
+
+.rules{
+    font-size:13px;
+    line-height:1.55;
+    max-width:220px;
+}
+
+.pair{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:18px;
+}
+
+.puzzle{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.puzzle-title{
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.answer{
+    margin-top:4px;
+    font-size:10px;
+    opacity:.6;
+}
+
+.outside-guide{
+    width:1100px;
+    background:white;
+    margin-top:16px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    line-height:1.6;
+}
+
+.mobile-note{
+    text-align:center;
+    margin-top:10px;
+    font-size:13px;
+    opacity:.6;
+}
+
+svg{
+    display:block;
+}
+
+@media (max-width:1200px){
+
+    .sheet-wrapper{
+        overflow-x:auto;
+    }
+
+    .sheet{
+        width:1100px;
+        height:850px;
+    }
+}
+
+@media (max-width:900px){
+
+    body{
+        padding:12px;
+    }
+
+    button{
+        width:100%;
+    }
+
+    label{
+        width:100%;
+        justify-content:space-between;
+    }
+
+    .logo-row{
+        grid-template-columns:repeat(5,46px);
+    }
+
+    .logo-box{
+        width:46px;
+        height:46px;
+        font-size:24px;
+    }
+}
+
+@media print{
+
+    body{
+        background:white;
+        padding:0;
+        margin:0;
+    }
+
+    .controls,
+    .top,
+    .mobile-note,
+    .sheet-title{
+        display:none !important;
+    }
+
+    #pages{
+        gap:12px;
+    }
+
+    .sheet-wrapper{
+        width:100%;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        page-break-after:always;
+    }
+
+    .sheet{
+        width:10.5in;
+        height:8in;
+        margin:0 auto;
+        box-shadow:none;
+    }
+
+    .outside-guide{
+        width:10.5in;
+        margin-top:8px;
+        box-shadow:none;
+        border:1px solid #ccc;
+        page-break-inside:avoid;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+
+    <div class="logo">
+
+        <div class="logo-row">
+            <div class="logo-box black">N</div>
+            <div class="logo-box">O</div>
+            <div class="logo-box gray">N</div>
+            <div class="logo-box black">O</div>
+            <div class="logo-box">G</div>
+        </div>
+
+        <div class="logo-row">
+            <div class="logo-box">R</div>
+            <div class="logo-box black">A</div>
+            <div class="logo-box gray">M</div>
+            <div class="logo-box">S</div>
+            <div class="logo-box black">!</div>
+        </div>
+
+    </div>
+
+    <div class="tagline">
+        MINI PUZZLE ZINE GENERATOR
+    </div>
+
+</div>
+
+<div class="controls">
+
+    <label>
+        Puzzle Size
+        <select id="size">
+            <option value="5">5x5</option>
+            <option value="10" selected>10x10</option>
+            <option value="15">15x15</option>
+        </select>
+    </label>
+
+    <label>
+        Density
+        <input type="range" id="density" min="20" max="70" value="45">
+    </label>
+
+    <label>
+        Double Sided
+        <input type="checkbox" id="double">
+    </label>
+
+    <button onclick="generate()">
+        Generate
+    </button>
+
+    <button onclick="window.print()">
+        Print
+    </button>
+
+</div>
+
+<div class="mobile-note">
+    Mobile: scroll sideways to preview printable sheets.
+</div>
+
+<div id="pages"></div>
+
+<script>
+
+function randomGrid(size,density){
+
+    const g=[];
+
+    for(let y=0;y<size;y++){
+
+        const row=[];
+
+        for(let x=0;x<size;x++){
+
+            row.push(
+                Math.random()*100<density?1:0
+            );
+        }
+
+        g.push(row);
+    }
+
+    for(let y=0;y<size;y++){
+
+        for(let x=0;x<size/2;x++){
+
+            g[y][size-1-x]=g[y][x];
+        }
+    }
+
+    return g;
+}
+
+function clues(line){
+
+    let r=0;
+    const out=[];
+
+    for(const c of line){
+
+        if(c) r++;
+
+        else if(r){
+
+            out.push(r);
+            r=0;
+        }
+    }
+
+    if(r) out.push(r);
+
+    return out.length?out:[0];
+}
+
+function col(g,x){
+
+    return g.map(r=>r[x]);
+}
+
+function makePuzzle(size,density){
+
+    const grid=randomGrid(size,density);
+
+    return{
+        size,
+        grid,
+        rows:grid.map(clues),
+        cols:[...Array(size)].map((_,x)=>clues(col(grid,x)))
+    };
+}
+
+function puzzleSVG(p,solved=false){
+
+    const cell=
+        p.size<=5?18:
+        p.size<=10?12:
+        9;
+
+    const maxR=Math.max(...p.rows.map(x=>x.length));
+    const maxC=Math.max(...p.cols.map(x=>x.length));
+
+    const left=maxR*10+5;
+    const top=maxC*10+5;
+
+    const w=left+p.size*cell+2;
+    const h=top+p.size*cell+2;
+
+    let s=`<svg width="${w}" height="${h}">`;
+
+    for(let y=0;y<p.size;y++){
+
+        p.rows[y].forEach((n,i)=>{
+
+            s+=`
+            <text
+                x="${left-(p.rows[y].length-i)*9}"
+                y="${top+y*cell+cell*.72}"
+                font-size="8"
+                text-anchor="middle">
+                ${n}
+            </text>`;
+        });
+    }
+
+    for(let x=0;x<p.size;x++){
+
+        p.cols[x].forEach((n,i)=>{
+
+            s+=`
+            <text
+                x="${left+x*cell+cell/2}"
+                y="${top-(p.cols[x].length-i)*9}"
+                font-size="8"
+                text-anchor="middle">
+                ${n}
+            </text>`;
+        });
+    }
+
+    for(let y=0;y<p.size;y++){
+
+        for(let x=0;x<p.size;x++){
+
+            s+=`
+            <rect
+                x="${left+x*cell}"
+                y="${top+y*cell}"
+                width="${cell}"
+                height="${cell}"
+                fill="${solved&&p.grid[y][x]?'black':'white'}"
+                stroke="black"
+                stroke-width="${(x%5===4||y%5===4)?1.4:.7}"
+            />`;
+        }
+    }
+
+    s+="</svg>";
+
+    return s;
+}
+
+function page(html,num){
+
+    return `
+    <div class="page">
+        ${html}
+        <div class="page-number">${num}</div>
+    </div>`;
+}
+
+function pairPage(p1,p2,title,answers=false){
+
+    return `
+    <div class="pair">
+
+        <div class="puzzle">
+
+            <div class="puzzle-title">
+                ${title} A
+            </div>
+
+            ${puzzleSVG(p1,answers)}
+
+            ${
+                answers
+                ? `<div class="answer">Answer</div>`
+                : ""
+            }
+
+        </div>
+
+        <div class="puzzle">
+
+            <div class="puzzle-title">
+                ${title} B
+            </div>
+
+            ${puzzleSVG(p2,answers)}
+
+            ${
+                answers
+                ? `<div class="answer">Answer</div>`
+                : ""
+            }
+
+        </div>
+
+    </div>`;
+}
+
+function cover(includeRules){
+
+    return `
+    <div class="cover">
+
+        <div class="logo">
+
+            <div class="logo-row">
+                <div class="logo-box black">N</div>
+                <div class="logo-box">O</div>
+                <div class="logo-box gray">N</div>
+                <div class="logo-box black">O</div>
+                <div class="logo-box">G</div>
+            </div>
+
+            <div class="logo-row">
+                <div class="logo-box">R</div>
+                <div class="logo-box black">A</div>
+                <div class="logo-box gray">M</div>
+                <div class="logo-box">S</div>
+                <div class="logo-box black">!</div>
+            </div>
+
+        </div>
+
+        <div class="cover-sub">
+            MINI PUZZLE ZINE
+        </div>
+
+        ${
+            includeRules
+            ?
+            `
+            <div style="
+                margin-top:20px;
+                font-size:12px;
+                line-height:1.5;
+                max-width:220px;
+            ">
+                Fill cells according to the number clues.
+                Separate groups require at least one empty square between them.
+            </div>
+            `
+            :
+            ""
+        }
+
+    </div>`;
+}
+
+function rulesPage(){
+
+    return `
+    <div class="rules">
+
+        <h3 style="margin-top:0">
+            HOW TO PLAY
+        </h3>
+
+        Numbers describe groups of filled cells in each row or column.<br><br>
+
+        Example:<br><br>
+
+        <b>3 1</b><br><br>
+
+        Means:<br>
+        • one group of 3 filled cells<br>
+        • later one group of 1<br><br>
+
+        Separate groups require at least one empty square between them.
+
+    </div>`;
+}
+
+function sheet(title,pages){
+
+    return `
+    <div class="sheet-wrapper">
+
+        <div class="sheet-title">
+            ${title}
+        </div>
+
+        <div class="sheet">
+
+            <div class="fold fold-v"></div>
+            <div class="fold fold-h"></div>
+
+            ${pages.join("")}
+
+        </div>
+
+    </div>`;
+}
+
+function generate(){
+
+    const size=parseInt(
+        document.getElementById("size").value
+    );
+
+    const density=parseInt(
+        document.getElementById("density").value
+    );
+
+    const double=
+        document.getElementById("double").checked;
+
+    const pagesDiv=document.getElementById("pages");
+
+    pagesDiv.innerHTML="";
+
+    const puzzleCount=
+        double
+        ? 8
+        : 6;
+
+    const puzzles=[];
+
+    for(let i=0;i<puzzleCount;i++){
+
+        puzzles.push(
+            makePuzzle(size,density)
+        );
+    }
+
+    const front=[];
+
+    front.push(
+        page(
+            cover(!double),
+            "Cover"
+        )
+    );
+
+    front.push(
+        page(
+            double
+            ? rulesPage()
+            : pairPage(
+                puzzles[4],
+                puzzles[5],
+                "Bonus"
+            ),
+            1
+        )
+    );
+
+    front.push(
+        page(
+            pairPage(
+                puzzles[0],
+                puzzles[1],
+                "Puzzle"
+            ),
+            2
+        )
+    );
+
+    front.push(
+        page(
+            pairPage(
+                puzzles[2],
+                puzzles[3],
+                "Puzzle"
+            ),
+            3
+        )
+    );
+
+    if(!double){
+
+        front.push(
+            page(
+                pairPage(
+                    puzzles[0],
+                    puzzles[1],
+                    "Answer",
+                    true
+                ),
+                4
+            )
+        );
+
+        front.push(
+            page(
+                pairPage(
+                    puzzles[2],
+                    puzzles[3],
+                    "Answer",
+                    true
+                ),
+                5
+            )
+        );
+
+        front.push(
+            page(
+                pairPage(
+                    puzzles[4],
+                    puzzles[5],
+                    "Answer",
+                    true
+                ),
+                6
+            )
+        );
+    }
+
+    while(front.length<8){
+
+        front.push(page("",""));
+    }
+
+    pagesDiv.innerHTML+=sheet(
+        double
+        ? "PRINT THIS AS THE FRONT SIDE"
+        : "PRINT THIS PAGE",
+        front
+    );
+
+    if(double){
+
+        const back=[];
+
+        back.push(
+            page(
+                pairPage(
+                    puzzles[4],
+                    puzzles[5],
+                    "Puzzle"
+                ),
+                4
+            )
+        );
+
+        back.push(
+            page(
+                pairPage(
+                    puzzles[6],
+                    puzzles[7],
+                    "Puzzle"
+                ),
+                5
+            )
+        );
+
+        back.push(
+            page(
+                pairPage(
+                    puzzles[0],
+                    puzzles[1],
+                    "Answer",
+                    true
+                ),
+                6
+            )
+        );
+
+        back.push(
+            page(
+                pairPage(
+                    puzzles[2],
+                    puzzles[3],
+                    "Answer",
+                    true
+                ),
+                7
+            )
+        );
+
+        back.push(
+            page(
+                pairPage(
+                    puzzles[4],
+                    puzzles[5],
+                    "Answer",
+                    true
+                ),
+                8
+            )
+        );
+
+        back.push(
+            page(
+                pairPage(
+                    puzzles[6],
+                    puzzles[7],
+                    "Answer",
+                    true
+                ),
+                9
+            )
+        );
+
+        while(back.length<8){
+
+            back.push(page("",""));
+        }
+
+        pagesDiv.innerHTML+=sheet(
+            "PRINT THIS AS THE BACK SIDE",
+            back
+        );
+    }
+
+    pagesDiv.innerHTML+=`
+
+    <div class="outside-guide">
+
+        <h3 style="margin-top:0">
+            HOW TO FOLD THE MINI BOOKLET
+        </h3>
+
+        1. Print the sheet(s).<br>
+        2. Fold the paper in half longways.<br>
+        3. Fold again into quarters.<br>
+        4. Cut a slit along the center fold.<br>
+        5. Push inward and fold into booklet form.<br><br>
+
+        ${
+            double
+            ?
+            `
+            <b>DOUBLE SIDED MODE</b><br>
+            Print the second page on the BACK of the first page.
+            `
+            :
+            `
+            <b>SINGLE SIDED MODE</b><br>
+            Everything prints on one side only.
+            `
+        }
+
+    </div>`;
+}
+
+generate();
+
+</script>
+</body>
+</html>
